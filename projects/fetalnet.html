@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="description" content="FetalNet — CNN architecture for fetal ultrasound classification. FYP 2025, Iqra University." />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FetalNet — Model Architecture & Description</title>
+
+  <!-- Google Fonts for blog warmth -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ─────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0b0c10;
+  --bg2:       #111218;
+  --bg3:       #16181f;
+  --border:    #252830;
+  --text:      #dde1ea;
+  --muted:     #7a7f8e;
+  --white:     #ffffff;
+
+  --teal:      #1D9E75;
+  --teal-dim:  rgba(29,158,117,.12);
+  --purple:    #534AB7;
+  --purple-dim:rgba(83,74,183,.12);
+  --blue:      #378ADD;
+  --blue-dim:  rgba(55,138,221,.12);
+  --amber:     #BA7517;
+  --amber-dim: rgba(186,117,23,.12);
+
+  --font-body: 'Inter', Arial, sans-serif;
+  --font-prose:'Lora', Georgia, serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  padding: 0;
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* ─────────────────────────────────────────
+   NEURAL OVERLAY
+───────────────────────────────────────── */
+.neural-overlay {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.particle {
+  position: absolute;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  opacity: 0;
+}
+.p1 { background:#378ADD; box-shadow:0 0 12px #378ADD; animation: flow1 6s linear infinite; }
+.p2 { background:#1D9E75; box-shadow:0 0 12px #1D9E75; animation: flow2 7s linear infinite; }
+.p3 { background:#534AB7; box-shadow:0 0 12px #534AB7; animation: flow3 8s linear infinite; }
+.p4 { background:#BA7517; box-shadow:0 0 12px #BA7517; animation: flow4 6.5s linear infinite; }
+.p5 { background:#fff;    box-shadow:0 0 10px #fff;    animation: flow5 7.5s linear infinite; }
+
+@keyframes flow1 { 0%{transform:translate(-10vw,20vh);opacity:0} 10%{opacity:1} 100%{transform:translate(110vw,80vh);opacity:0} }
+@keyframes flow2 { 0%{transform:translate(-10vw,60vh);opacity:0} 15%{opacity:1} 100%{transform:translate(110vw,10vh);opacity:0} }
+@keyframes flow3 { 0%{transform:translate(-10vw,90vh);opacity:0} 20%{opacity:1} 100%{transform:translate(110vw,30vh);opacity:0} }
+@keyframes flow4 { 0%{transform:translate(-10vw,40vh);opacity:0} 25%{opacity:1} 100%{transform:translate(110vw,70vh);opacity:0} }
+@keyframes flow5 { 0%{transform:translate(-10vw,10vh);opacity:0} 30%{opacity:1} 100%{transform:translate(110vw,90vh);opacity:0} }
+
+/* ─────────────────────────────────────────
+   PAGE WRAPPER
+───────────────────────────────────────── */
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ─────────────────────────────────────────
+   BACK BUTTON
+───────────────────────────────────────── */
+.back-btn {
+  display: inline-block;
+  margin-bottom: 28px;
+  padding: 9px 18px;
+  border: 1px solid var(--blue);
+  border-radius: 8px;
+  color: var(--blue);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all .3s ease;
+}
+.back-btn:hover { background: var(--blue); color: #fff; box-shadow: 0 0 15px rgba(55,138,221,.35); }
+
+/* ─────────────────────────────────────────
+   HERO / BLOG HEADER
+───────────────────────────────────────── */
+.hero {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg2);
+  padding: 36px 32px 30px;
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(55,138,221,.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 12px;
+}
+
+.hero-title {
+  font-family: var(--font-prose);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.25;
+  margin-bottom: 14px;
+}
+
+.hero-title span { color: var(--teal); font-style: italic; }
+
+.hero-summary {
+  font-family: var(--font-prose);
+  font-size: 15px;
+  color: #b8bec8;
+  line-height: 1.8;
+  max-width: 640px;
+  margin-bottom: 22px;
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hero-meta span {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+.hero-meta strong { color: var(--text); }
+
+/* ─────────────────────────────────────────
+   SECTION LABELS (universal)
+───────────────────────────────────────── */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 36px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─────────────────────────────────────────
+   BLOG PROSE BLOCK
+───────────────────────────────────────── */
+.prose {
+  font-family: var(--font-prose);
+  font-size: 15px;
+  line-height: 1.85;
+  color: #b8bec8;
+  margin-bottom: 22px;
+}
+
+.prose strong { color: var(--white); font-weight: 600; }
+.prose em     { color: var(--teal);  font-style: italic; }
+
+/* ─────────────────────────────────────────
+   DATASET STATS GRID
+───────────────────────────────────────── */
+.dataset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.ds-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  position: relative;
+  transition: transform .25s ease, border-color .25s ease;
+}
+
+.ds-card:hover { transform: translateY(-2px); border-color: var(--blue); }
+
+.ds-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 2px;
+}
+
+.ds-lbl {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.ds-bar {
+  height: 3px;
+  border-radius: 99px;
+  margin-top: 10px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.ds-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--blue);
+  transition: width 1s ease;
+}
+
+/* ─────────────────────────────────────────
+   CLASS BREAKDOWN TABLE (blog style)
+───────────────────────────────────────── */
+.class-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.class-table thead th {
+  text-align: left;
+  padding: 10px 12px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+
+.class-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .2s ease;
+}
+
+.class-table tbody tr:hover { background: var(--bg2); }
+
+.class-table tbody td {
+  padding: 11px 12px;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.class-table td:first-child { color: var(--white); font-weight: 600; }
+
+.recall-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.recall-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.recall-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+.recall-val { font-size: 12px; font-weight: 600; min-width: 38px; text-align: right; }
+
+/* ─────────────────────────────────────────
+   CONFUSION MATRIX
+───────────────────────────────────────── */
+.cm-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.cm-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+
+.cm-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.cm-table {
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 520px;
+  width: 100%;
+}
+
+.cm-table th, .cm-table td {
+  padding: 8px 10px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.cm-table thead th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 11px;
+  background: var(--bg3);
+}
+
+.cm-table thead th:first-child { text-align: left; }
+
+.cm-table tbody td:first-child {
+  text-align: left;
+  color: var(--white);
+  font-weight: 600;
+  background: var(--bg3);
+  white-space: nowrap;
+}
+
+.cm-diag   { background: rgba(55,138,221,.22); color: var(--white); font-weight: 700; }
+.cm-high   { background: rgba(55,138,221,.10); }
+.cm-low    { background: rgba(186,117,23,.08); color: #e8c07a; }
+.cm-zero   { color: var(--muted); }
+
+.cm-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.cm-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cm-swatch {
+  width: 12px; height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* ─────────────────────────────────────────
+   PROJECT TIMELINE
+───────────────────────────────────────── */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 24px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--blue), var(--teal), var(--border));
+}
+
+.tl-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 5px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--blue);
+  transition: background .3s ease;
+}
+
+.tl-item:hover::before { background: var(--blue); }
+
+.tl-week {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 3px;
+}
+
+.tl-milestone {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 3px;
+}
+
+.tl-detail {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ─────────────────────────────────────────
+   CALLOUT / INSIGHT BOX
+───────────────────────────────────────── */
+.callout {
+  border-left: 3px solid var(--teal);
+  background: rgba(29,158,117,.07);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  font-family: var(--font-prose);
+  font-size: 14px;
+  font-style: italic;
+  color: #b8f0d8;
+  line-height: 1.75;
+}
+
+.callout-amber {
+  border-color: var(--amber);
+  background: rgba(186,117,23,.07);
+  color: #f0d5a0;
+}
+
+/* ─────────────────────────────────────────
+   XAI TECHNIQUE CARDS
+───────────────────────────────────────── */
+.xai-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.xai-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  transition: border-color .25s ease, transform .25s ease;
+}
+
+.xai-card:hover { border-color: var(--purple); transform: translateY(-2px); }
+
+.xai-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.xai-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 5px;
+}
+
+.xai-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+/* ─────────────────────────────────────────
+   DIVIDER
+───────────────────────────────────────── */
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+/* ─────────────────────────────────────────
+   ──── ORIGINAL ARCHITECTURE SECTION ────
+   (preserved exactly, just scoped inside
+    .page-wrap and using updated tokens)
+───────────────────────────────────────── */
+.arch-section { margin-top: 8px; }
+
+.stage {
+  display: grid;
+  grid-template-columns: 260px 1px 1fr;
+  gap: 0 28px;
+  margin-bottom: 6px;
+  position: relative;
+  border-radius: 10px;
+  transition: all .3s ease;
+}
+
+.stage:hover { transform: translateY(-2px); box-shadow: 0 0 18px rgba(55,138,221,.15); }
+
+.stage-line {
+  background: #2a2a2a;
+  width: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stage-line::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: 0;
+  width: 100%; height: 40%;
+  background: linear-gradient(to bottom, transparent, rgba(55,138,221,.6), transparent);
+  animation: flowLine 2.8s linear infinite;
+}
+
+@keyframes flowLine {
+  0%   { top: -40%; }
+  100% { top: 120%; }
+}
+
+.stage-desc {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 14px 0;
+}
+
+.box {
+  border-radius: 10px;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  width: 100%;
+  border: 1px solid;
+  backdrop-filter: blur(6px);
+}
+
+.box .sub {
+  font-size: 10px;
+  font-weight: 400;
+  margin-top: 3px;
+  opacity: .8;
+}
+
+.box-gray   { background:#151515; border-color:#3a3a3a; color:#e6e6e6; }
+.box-teal   { background:var(--teal-dim); border-color:var(--teal); color:#bfffe6; }
+.box-purple { background:var(--purple-dim); border-color:var(--purple); color:#d6d0ff; }
+.box-blue   { background:var(--blue-dim); border-color:var(--blue); color:#cfe6ff; }
+.box-amber  { background:var(--amber-dim); border-color:var(--amber); color:#ffd7a1; border-width:1.5px; border-style:dashed; }
+
+.arrow-down {
+  width: 1px; height: 18px;
+  background: #3a3a3a;
+  margin: 0 auto;
+  position: relative;
+}
+
+.arrow-down::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: -4px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 6px solid #3a3a3a;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.badge-teal   { background:rgba(29,158,117,.15); color:#7fffd4; border:1px solid var(--teal); }
+.badge-purple { background:rgba(83,74,183,.15);  color:#c9c2ff; border:1px solid var(--purple); }
+.badge-blue   { background:rgba(55,138,221,.15); color:#b9dcff; border:1px solid var(--blue); }
+.badge-amber  { background:rgba(186,117,23,.15); color:#ffd7a1; border:1px solid var(--amber); }
+.badge-gray   { background:rgba(255,255,255,.05);color:#cfcfcf; border:1px solid #444; }
+
+.desc-title { font-size:13px; font-weight:600; color:#fff; margin-bottom:4px; }
+.desc-text  { font-size:12px; color:#b5b5b5; line-height:1.7; }
+.desc-text em { font-style:italic; color:#fff; }
+
+/* ─────────────────────────────────────────
+   TRAINING CARDS (original)
+───────────────────────────────────────── */
+.train-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.train-card {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 14px 16px;
+}
+
+.train-card-title { font-size:12px; font-weight:600; color:#fff; margin-bottom:6px; }
+.train-card-text  { font-size:12px; color:#b5b5b5; line-height:1.7; }
+
+/* ─────────────────────────────────────────
+   METRICS (original)
+───────────────────────────────────────── */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+}
+
+.metric {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.metric-num { font-size:20px; font-weight:700; color:#fff; }
+.metric-lbl { font-size:11px; color:#8a8a8a; margin-top:2px; }
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .stage { grid-template-columns: 1fr; }
+  .stage-line { display: none; }
+  .train-grid { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+  .dataset-grid { grid-template-columns: 1fr 1fr; }
+  .xai-grid { grid-template-columns: 1fr; }
+  .hero { padding: 24px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NEURAL OVERLAY -->
+<div class="neural-overlay">
+  <div class="particle p1"></div>
+  <div class="particle p2"></div>
+  <div class="particle p3"></div>
+  <div class="particle p4"></div>
+  <div class="particle p5"></div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Back button -->
+  <a href="../index.html" class="back-btn">← Back to Portfolio</a>
+
+  <!-- ═══════════════════════════════════════
+       BLOG HERO
+  ═══════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-eyebrow">Final Year Project · Iqra University · BS Software Engineering · 2025</div>
+    <h1 class="hero-title">FetalNet — <span>Fine-Grained Classification</span><br>of Fetal Ultrasound Planes</h1>
+    <p class="hero-summary">
+      A lightweight deep learning system that automatically identifies six fetal anatomical planes in prenatal ultrasound scans — achieving <strong>93.01% accuracy</strong> with full explainable AI support so clinicians can see exactly why the model made each call.
+    </p>
+    <div class="hero-meta">
+      <span>Supervised by <strong>Mr. Fahad Najeeb</strong></span>
+      <span>Team: <strong>Hussain · Javed Iqbal · Ali Abbas</strong></span>
+      <span>Dataset: <strong>FETAL_PLANES_DB · 12,400 images</strong></span>
+      <span>Framework: <strong>PyTorch · Streamlit</strong></span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       OVERVIEW PROSE
+  ═══════════════════════════════════════ -->
+  <p class="section-label">Project overview</p>
+
+  <p class="prose">
+    Prenatal ultrasound is one of the most widely used diagnostic tools in modern obstetrics — yet accurate reading of the scans still depends heavily on the experience of the sonographer. A tired clinician, a noisy image, or a sub-optimal fetal position can introduce inconsistency that affects diagnosis. <strong>FetalNet</strong> was built to act as a second opinion: a fast, consistent AI classifier that runs on a standard CPU and tells you which anatomical plane you are looking at, along with a visual explanation of its reasoning.
+  </p>
+
+  <div class="callout">
+    "Manual ultrasound interpretation is time-intensive and subject to observer variability. Our goal was to make AI-assisted classification accessible, interpretable, and lightweight enough to run in resource-constrained clinical environments."
+  </div>
+
+  <p class="prose">
+    The model combines a <em>frozen MobileNetV2 backbone</em> (pre-trained on ImageNet) with a custom convolutional head and a <em>Squeeze-and-Excitation attention block</em> — letting the network dynamically decide which feature channels matter most for each image. Four XAI techniques are wired directly into the Streamlit interface so radiologists get a heatmap alongside every prediction.
+  </p>
+
+  <!-- ═══════════════════════════════════════
+       DATASET DETAILS
+  ═══════════════════════════════════════ -->
+  <p class="section-label">Dataset — FETAL_PLANES_DB</p>
+
+  <p class="prose">
+    All images come from <strong>BCNatal</strong>, a maternal-fetal medicine research centre in Barcelona, Spain (Hospital Clínic + Hospital Sant Joan de Déu). Scans were captured between October 2018 and April 2019 using <strong>six different ultrasound machines</strong> — three Voluson E6, one Voluson S10, one Voluson S8, and one Aloka — ensuring the dataset reflects real-world machine variability. Images were stored as raw DICOM, anonymised, and converted to uncompressed PNG.
+  </p>
+
+  <div class="dataset-grid">
+    <div class="ds-card">
+      <div class="ds-num">12,400</div>
+      <div class="ds-lbl">Total labelled<br>ultrasound images</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:100%;background:#378ADD"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">6</div>
+      <div class="ds-lbl">Anatomical<br>plane categories</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:60%;background:#1D9E75"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">6</div>
+      <div class="ds-lbl">Ultrasound machines<br>represented</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:60%;background:#534AB7"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">70 / 15 / 15</div>
+      <div class="ds-lbl">Train / Val / Test<br>stratified split (%)</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:70%;background:#BA7517"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">224×224</div>
+      <div class="ds-lbl">Input resolution<br>after preprocessing</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:45%;background:#378ADD"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">4,213</div>
+      <div class="ds-lbl">"Other" category<br>(noise & unknowns)</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:34%;background:#7a7f8e"></div></div>
+    </div>
+  </div>
+
+  <p class="prose">
+    A senior maternal-fetal medicine expert annotated the dataset using a custom Python GUI, applying strict quality criteria and excluding images with poor positioning or embedded measurement calipers. Two research technicians independently labelled a subset to provide a human baseline for inter-observer comparison.
+  </p>
+
+  <!-- ═══════════════════════════════════════
+       CLASS-WISE RESULTS
+  ═══════════════════════════════════════ -->
+  <p class="section-label">Class-wise performance — final fine-tuned model</p>
+
+  <p class="prose">
+    The table below shows per-class precision, recall, and F1-score on the <strong>1,860-image test set</strong>. All values are from the fine-tuned model after 20 total training epochs.
+  </p>
+
+  <table class="class-table">
+    <thead>
+      <tr>
+        <th>Class</th>
+        <th>Test samples</th>
+        <th>Precision</th>
+        <th>F1</th>
+        <th style="min-width:160px;">Recall</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Fetal brain</td>
+        <td>464</td>
+        <td>0.97</td>
+        <td>0.97</td>
+        <td>
+          <div class="recall-bar-wrap">
+            <div class="recall-bar-bg"><div class="recall-bar-fill" style="width:97.8%;background:#1D9E75;height:100%;border-radius:99px"></div></div>
+            <span class="recall-val" style="color:#7fffd4">97.8%</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>Maternal cervix</td>
+        <td>244</td>
+        <td>1.00</td>
+        <td>1.00</td>
+        <td>
+          <div class="recall-bar-wrap">
+            <div class="recall-bar-bg"><div class="recall-bar-fill" style="width:100%;background:#378ADD;height:100%;border-radius:99px"></div></div>
+            <span class="recall-val" style="color:#cfe6ff">100%</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>Fetal thorax</td>
+        <td>258</td>
+        <td>0.93</td>
+        <td>0.93</td>
+        <td>
+          <div class="recall-bar-wrap">
+            <div class="recall-bar-bg"><div class="recall-bar-fill" style="width:91.9%;background:#534AB7;height:100%;border-radius:99px"></div></div>
+            <span class="recall-val" style="color:#d6d0ff">91.9%</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>Other</td>
+        <td>632</td>
+        <td>0.91</td>
+        <td>0.91</td>
+        <td>
+          <div class="recall-bar-wrap">
+            <div class="recall-bar-bg"><div class="recall-bar-fill" style="width:90.8%;background:#7a7f8e;height:100%;border-radius:99px"></div></div>
+            <span class="recall-val" style="color:#cfcfcf">90.8%</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>Fetal femur</td>
+        <td>156</td>
+        <td>0.88</td>
+        <td>0.88</td>
+        <td>
+          <div class="recall-bar-wrap">
+            <div class="recall-bar-bg"><div class="recall-bar-fill" style="width:87.8%;background:#BA7517;height:100%;border-radius:99px"></div></div>
+            <span class="recall-val" style="color:#ffd7a1">87.8%</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>Fetal abdomen</td>
+        <td>106</td>
+        <td>0.82</td>
+        <td>0.80</td>
+        <td>
+          <div class="recall-bar-wrap">
+            <div class="recall-bar-bg"><div class="recall-bar-fill" style="width:79.2%;background:#e05050;height:100%;border-radius:99px"></div></div>
+            <span class="recall-val" style="color:#ffb0b0">79.2%</span>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-amber">
+    Fetal abdomen is the hardest class — only 754 training samples versus 3,092 for fetal brain. The confusion matrix shows that 14.2% of abdomen scans are misclassified as "Other", suggesting that targeted data augmentation or class-weighted loss could close this gap in a future iteration.
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       CONFUSION MATRIX
+  ═══════════════════════════════════════ -->
+  <p class="section-label">Confusion matrix — test set (count)</p>
+
+  <div class="cm-wrap">
+    <div class="cm-title">FetalNet Fine-Tuned · run1_initial_10_epochs_finetune_lr1e-05</div>
+    <div class="cm-sub">Rows = true label · Columns = predicted label · n = 1,860 images</div>
+
+    <table class="cm-table">
+      <thead>
+        <tr>
+          <th>True ↓ / Pred →</th>
+          <th>Abdomen</th>
+          <th>Brain</th>
+          <th>Femur</th>
+          <th>Thorax</th>
+          <th>Cervix</th>
+          <th>Other</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Fetal abdomen (106)</td>
+          <td class="cm-diag">84</td>
+          <td class="cm-zero">1</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-low">6</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-low">15</td>
+        </tr>
+        <tr>
+          <td>Fetal brain (464)</td>
+          <td class="cm-zero">1</td>
+          <td class="cm-diag">454</td>
+          <td class="cm-zero">1</td>
+          <td class="cm-zero">5</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-zero">3</td>
+        </tr>
+        <tr>
+          <td>Fetal femur (156)</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-diag">137</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-low">19</td>
+        </tr>
+        <tr>
+          <td>Fetal thorax (258)</td>
+          <td class="cm-zero">8</td>
+          <td class="cm-zero">1</td>
+          <td class="cm-zero">2</td>
+          <td class="cm-diag">237</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-zero">10</td>
+        </tr>
+        <tr>
+          <td>Maternal cervix (244)</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-diag">244</td>
+          <td class="cm-zero">0</td>
+        </tr>
+        <tr>
+          <td>Other (632)</td>
+          <td class="cm-zero">16</td>
+          <td class="cm-zero">4</td>
+          <td class="cm-zero">15</td>
+          <td class="cm-zero">23</td>
+          <td class="cm-zero">0</td>
+          <td class="cm-diag">574</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cm-legend">
+      <span><span class="cm-swatch" style="background:rgba(55,138,221,.4)"></span>Diagonal — correct prediction</span>
+      <span><span class="cm-swatch" style="background:rgba(186,117,23,.3)"></span>Notable misclassification</span>
+      <span><span class="cm-swatch" style="background:rgba(255,255,255,.05)"></span>Zero or near-zero</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       XAI SECTION
+  ═══════════════════════════════════════ -->
+  <p class="section-label">Explainable AI — four interpretability techniques</p>
+
+  <p class="prose">
+    High accuracy alone is not enough for clinical adoption. FetalNet integrates four complementary XAI techniques so a radiologist can always ask <em>"why did the model predict this?"</em> and get a visual answer rather than a black-box confidence score.
+  </p>
+
+  <div class="xai-grid">
+    <div class="xai-card">
+      <div class="xai-icon" style="background:rgba(55,138,221,.15)">🔥</div>
+      <div class="xai-name">Grad-CAM</div>
+      <div class="xai-desc">Gradient-weighted Class Activation Mapping. Produces a coarse heatmap over the image highlighting the <strong>broad spatial regions</strong> the network focused on — e.g. the fetal skull boundary for brain scans. Fast and reliable for confirming the model looked at the right anatomy.</div>
+    </div>
+    <div class="xai-card">
+      <div class="xai-icon" style="background:rgba(83,74,183,.15)">🎯</div>
+      <div class="xai-name">Guided Backpropagation</div>
+      <div class="xai-desc">Combines gradient flow with ReLU gating to produce sharp, <strong>pixel-level edge maps</strong>. Reveals fine-grained texture and boundary features that drive the decision — useful for catching cases where the model focuses on image artefacts rather than anatomy.</div>
+    </div>
+    <div class="xai-card">
+      <div class="xai-icon" style="background:rgba(29,158,117,.15)">📊</div>
+      <div class="xai-name">Integrated Gradients</div>
+      <div class="xai-desc">Attributes prediction to each pixel by accumulating gradients along a path from a baseline (black image) to the input. Produces <strong>stable, theoretically grounded</strong> saliency maps that satisfy completeness and sensitivity axioms — preferred for rigorous model auditing.</div>
+    </div>
+    <div class="xai-card">
+      <div class="xai-icon" style="background:rgba(186,117,23,.15)">🕵️</div>
+      <div class="xai-name">Occlusion Sensitivity</div>
+      <div class="xai-desc">Systematically masks patches of the image and measures how much the prediction changes. Identifies <strong>critical regions by perturbation</strong> — slow but effective for edge cases and for finding blind spots the gradient methods may miss.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PROJECT TIMELINE
+  ═══════════════════════════════════════ -->
+  <p class="section-label">Project timeline — November 2024 → June 2025</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-week">Weeks 1 – 4 · Nov 2024</div>
+      <div class="tl-milestone">Project planning, literature review & data preparation</div>
+      <div class="tl-detail">Finalised project scope and Gantt chart. Reviewed 10+ related papers. Downloaded and verified FETAL_PLANES_DB. Performed stratified 70/15/15 split and baseline preprocessing.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-week">Week 5 – 6 · Dec 2024</div>
+      <div class="tl-milestone">Requirements analysis & high-level architecture design</div>
+      <div class="tl-detail">Defined functional and non-functional requirements. Drew use case diagrams, class diagrams, and data flow diagrams. Selected MobileNetV2 + SE Block architecture.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-week">Weeks 7 – 8 · Jan 2025</div>
+      <div class="tl-milestone">Baseline model implementation & initial training (Phase 1)</div>
+      <div class="tl-detail">Implemented FetalNet in PyTorch. Trained for 10 epochs with frozen backbone (LR = 1e-4). Achieved best validation accuracy of 92.69% and test accuracy of 91.77%.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-week">Weeks 9 – 10 · Feb – Mar 2025</div>
+      <div class="tl-milestone">Fine-tuning & ablation studies (Phase 2)</div>
+      <div class="tl-detail">Unfroze upper MobileNetV2 layers and fine-tuned for 10 more epochs (LR = 1e-5). Final test accuracy: 93.01%. Ran four ablation variants to confirm contribution of each component.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-week">Weeks 11 – 12 · Apr 2025</div>
+      <div class="tl-milestone">XAI integration & Streamlit web application</div>
+      <div class="tl-detail">Wired Grad-CAM, Guided Backpropagation, Integrated Gradients, and Occlusion Sensitivity into the inference pipeline using Captum and pytorch-grad-cam. Built multi-page Streamlit interface with drag-and-drop upload.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-week">Weeks 13 – 15 · May – Jun 2025</div>
+      <div class="tl-milestone">Deployment, report & final submission</div>
+      <div class="tl-detail">Deployed app to Streamlit Cloud. Wrote final 80-page report. Prepared poster and presentation slides. Submitted to Iqra University Faculty of Engineering, Sciences & Technology.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════
+       ORIGINAL ARCHITECTURE PIPELINE
+       (fully preserved)
+  ═══════════════════════════════════════ -->
+  <div class="arch-section">
+    <p class="section-label">Architecture pipeline</p>
+
+    <!-- STAGE 0 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-gray">Input image<div class="sub">Grayscale ultrasound scan (PNG / JPG)</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-gray">Stage 0</span>
+        <div class="desc-title">Raw ultrasound scan</div>
+        <div class="desc-text">The system accepts a fetal ultrasound image captured during a routine prenatal scan. Images originate from the public FETAL_PLANES_DB dataset — 12,400 grayscale scans collected across six ultrasound machines at BCNatal, Spain. Six anatomical categories are covered: fetal brain, abdomen, femur, thorax, maternal cervix, and other.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 1 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-teal">Preprocessing<div class="sub">Grayscale → RGB · 224×224 · normalise mean/std = 0.5</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-teal">Stage 1 — image preparation</span>
+        <div class="desc-title">Standardising the input</div>
+        <div class="desc-text">Grayscale images are converted to 3-channel RGB (required by MobileNetV2's pre-trained weights), resized to 224×224 pixels, and normalised with mean = [0.5, 0.5, 0.5] and std = [0.5, 0.5, 0.5]. This standardises pixel intensity across different scan machines, operators, and imaging conditions, making training more stable.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 2 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-purple">MobileNetV2 backbone<div class="sub">18 inverted residual blocks · frozen weights · output: 1,280 channels</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-purple">Stage 2 — transfer learning</span>
+        <div class="desc-title">Pre-trained feature extractor</div>
+        <div class="desc-text">MobileNetV2 is a lightweight CNN pre-trained on ImageNet's 1.2 million images. Its 18 inverted residual blocks use depthwise-separable convolutions to extract rich visual features at low computational cost. All backbone weights are <em>frozen</em> during Phase 1 — the network's general knowledge is preserved and only the new custom head is trained. This avoids overfitting on the relatively small medical dataset. Output: a 1,280-channel feature map.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 3 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-blue">Conv block 1<div class="sub">Conv2d(1280→256, 3×3) · BatchNorm · ReLU · MaxPool(2)</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-blue">Stage 3 — spatial refinement</span>
+        <div class="desc-title">First convolutional refinement layer</div>
+        <div class="desc-text">A 3×3 convolution reduces channel depth from 1,280 to 256, followed by Batch Normalisation (stabilises and accelerates training) and ReLU activation (introduces non-linearity). MaxPool(2) halves spatial resolution, compressing information while retaining the most important activations. This layer adapts generic ImageNet features toward ultrasound-specific patterns such as tissue boundaries and echo textures.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 4 — SE BLOCK -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-amber">SE block — squeeze-and-excitation<div class="sub">AvgPool → FC(256→32) → ReLU → FC(32→256) → Sigmoid → channel scale</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-amber">Stage 4 — attention (key innovation)</span>
+        <div class="desc-title">Channel-wise attention mechanism</div>
+        <div class="desc-text">The SE Block is the architectural highlight of FetalNet. It asks: <em>"which of the 256 feature channels matter most for this particular image?"</em> It squeezes spatial dimensions to a single value per channel via global average pooling, passes them through two FC layers with a bottleneck (reduction = 8, so 256→32→256), applies Sigmoid to produce per-channel weights in [0,1], and multiplies those weights back onto the feature map — dynamically amplifying informative channels (e.g. skull boundary for brain, diaphragm for thorax) and suppressing noise. The ablation study confirmed that removing the SE Block dropped accuracy from 93.01% to 92.00%.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 5 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-blue">Conv block 2<div class="sub">Conv2d(256→128, 3×3) · BatchNorm · ReLU · AdaptiveAvgPool(1×1)</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-blue">Stage 5 — compression</span>
+        <div class="desc-title">Second convolutional refinement layer</div>
+        <div class="desc-text">A second 3×3 convolution further compresses channels from 256 to 128. Adaptive Average Pooling then collapses the spatial dimensions entirely to a 1×1 grid, producing a compact 128-dimensional feature vector. This removes spatial position from the representation — leaving only "what anatomical pattern is present", not "where in the image it appears". Removing this layer in the ablation study reduced accuracy to 92.64%.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 6 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-gray">Classifier head<div class="sub">Flatten → FC(128→128) → ReLU → Dropout(0.5) → FC(128→6)</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-gray">Stage 6 — decision-making layers</span>
+        <div class="desc-title">Fully connected classification head</div>
+        <div class="desc-text">The 128-d vector is passed through a fully connected layer FC(128→128) with ReLU, then Dropout at rate 0.5. Dropout randomly deactivates 50% of neurons during training, forcing the network to learn redundant representations and acting as strong regularisation to prevent memorising training examples. The final layer FC(128→6) maps to logits for the six anatomical classes.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 7 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-teal">Output — 6 classes + Softmax<div class="sub">Brain · Abdomen · Femur · Thorax · Cervix · Other</div></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-teal">Stage 7 — prediction output</span>
+        <div class="desc-title">Final classification &amp; confidence score</div>
+        <div class="desc-text">The 6 raw logits are converted to probabilities via Softmax. The class with the highest probability is returned to the Streamlit web application as the predicted anatomical plane, alongside a confidence score and XAI visualisations (Grad-CAM, Guided Backpropagation, Integrated Gradients, Occlusion Sensitivity). Best recall: Maternal Cervix (100%). Lowest recall: Fetal Abdomen (79%), reflecting class imbalance in the training data.</div>
+      </div>
+    </div>
+  </div><!-- /arch-section -->
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════
+       TWO-PHASE TRAINING (original)
+  ═══════════════════════════════════════ -->
+  <p class="section-label">Two-phase training strategy</p>
+  <div class="train-grid">
+    <div class="train-card">
+      <div class="train-card-title">Phase 1 — baseline training (10 epochs)</div>
+      <div class="train-card-text">MobileNetV2 backbone frozen. Only the custom convolutional head and classifier are trained. Adam optimiser, learning rate = 1e-4, batch size = 32, Cross-Entropy loss. Light augmentation (horizontal flip, random rotation). Best validation accuracy: <strong>92.69%</strong>. Final test accuracy: <strong>91.77%</strong>.</div>
+    </div>
+    <div class="train-card">
+      <div class="train-card-title">Phase 2 — fine-tuning (10 more epochs)</div>
+      <div class="train-card-text">Upper layers of MobileNetV2 gradually unfrozen. Entire network trained end-to-end. Learning rate reduced to 1e-5 to avoid overwriting pre-trained features. Dropout = 0.5 for regularisation. Best validation accuracy: <strong>93.34%</strong>. Final test accuracy: <strong>93.01%</strong>. Weighted F1: <strong>0.93</strong>.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════
+       FINAL METRICS (original)
+  ═══════════════════════════════════════ -->
+  <p class="section-label">Final model performance</p>
+  <div class="metrics">
+    <div class="metric"><div class="metric-num">93.01%</div><div class="metric-lbl">Test accuracy</div></div>
+    <div class="metric"><div class="metric-num">0.93</div><div class="metric-lbl">Weighted F1</div></div>
+    <div class="metric"><div class="metric-num">0.91</div><div class="metric-lbl">Macro F1</div></div>
+    <div class="metric"><div class="metric-num">100%</div><div class="metric-lbl">Cervix recall</div></div>
+  </div>
+
+</div><!-- /page-wrap -->
+</body>
+</html>

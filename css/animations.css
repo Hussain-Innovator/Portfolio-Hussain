@@ -1,0 +1,190 @@
+/* ============================================================
+   HUSSAIN PORTFOLIO — animations.css
+   All @keyframes, hero entrance, scroll-reveal, badge stagger
+   ============================================================ */
+
+/* ── KEYFRAMES ──────────────────────────────────────────────── */
+
+@keyframes gridPan {
+  0%   { background-position: 0 0; }
+  100% { background-position: 72px 72px; }
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(28px, -18px) scale(1.04); }
+  66%       { transform: translate(-18px, 14px) scale(0.97); }
+}
+
+@keyframes shimmer {
+  0%   { left: -100%; }
+  100% { left: 200%; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.72); }
+}
+
+@keyframes scrollWheel {
+  0%   { transform: translateY(0);    opacity: 1; }
+  55%  { transform: translateY(10px); opacity: 0; }
+  56%  { transform: translateY(-3px); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+@keyframes rotateRing {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes particleDrift {
+  0%   { transform: translateY(0) translateX(0);    opacity: 0; }
+  8%   { opacity: 0.55; }
+  88%  { opacity: 0.28; }
+  100% { transform: translateY(-85vh) translateX(55px); opacity: 0; }
+}
+
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── HERO ENTRANCE SEQUENCE ─────────────────────────────────── */
+/* Elements start invisible; CSS fires automatically on load    */
+.hero-tag,
+.hero-name,
+.hero-title,
+.hero-desc,
+.hero-cta,
+.hero-stats {
+  opacity: 0;
+}
+
+.hero-tag         { animation: heroFadeUp 0.7s 0.10s both ease-out; }
+.hero-name        { animation: heroFadeUp 0.8s 0.28s both ease-out; }
+.hero-title       { animation: heroFadeUp 0.7s 0.46s both ease-out; }
+.hero-desc        { animation: heroFadeUp 0.7s 0.60s both ease-out; }
+.hero-cta         { animation: heroFadeUp 0.7s 0.74s both ease-out; }
+.hero-stats       { animation: heroFadeUp 0.7s 0.88s both ease-out; }
+.hero-scroll-hint { animation: heroFadeIn 1.0s 1.20s both; }
+
+/* Particles: animation class applied by JS via particleDrift  */
+.particle { animation: particleDrift var(--dur, 16s) linear var(--del, 0s) infinite; }
+
+/* ── SCROLL REVEAL SYSTEM ───────────────────────────────────── */
+/* JS adds .visible when element enters viewport                */
+.reveal {
+  opacity: 0;
+  transition:
+    opacity  0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Default: fade up */
+.reveal:not(.from-left):not(.from-right):not(.scale-in) {
+  transform: translateY(24px);
+}
+
+.reveal.from-left  { transform: translateX(-26px); }
+.reveal.from-right { transform: translateX(26px);  }
+.reveal.scale-in   { transform: scale(0.92);       }
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1);
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* No-JS fallback */
+.no-js .reveal {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ── STAGGER DELAYS ─────────────────────────────────────────── */
+/* Add .stagger to a grid parent; children with .reveal get delays */
+.stagger .reveal:nth-child(1) { transition-delay: 0.04s; }
+.stagger .reveal:nth-child(2) { transition-delay: 0.11s; }
+.stagger .reveal:nth-child(3) { transition-delay: 0.18s; }
+.stagger .reveal:nth-child(4) { transition-delay: 0.25s; }
+.stagger .reveal:nth-child(5) { transition-delay: 0.32s; }
+.stagger .reveal:nth-child(6) { transition-delay: 0.39s; }
+.stagger .reveal:nth-child(7) { transition-delay: 0.46s; }
+.stagger .reveal:nth-child(8) { transition-delay: 0.53s; }
+
+/* ── SECTION HEADER CASCADE ─────────────────────────────────── */
+.section-header.reveal .section-label    { transition-delay: 0s;   }
+.section-header.reveal .section-title    { transition-delay: 0.1s; }
+.section-header.reveal .section-subtitle { transition-delay: 0.2s; }
+
+/* ── BADGE STAGGER ──────────────────────────────────────────── */
+/* JS adds .badges-visible to #aboutBadges                      */
+.about-badges .badge {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.about-badges.badges-visible .badge              { opacity: 1; transform: scale(1); }
+.about-badges.badges-visible .badge:nth-child(1)  { transition-delay: 0.04s; }
+.about-badges.badges-visible .badge:nth-child(2)  { transition-delay: 0.09s; }
+.about-badges.badges-visible .badge:nth-child(3)  { transition-delay: 0.14s; }
+.about-badges.badges-visible .badge:nth-child(4)  { transition-delay: 0.19s; }
+.about-badges.badges-visible .badge:nth-child(5)  { transition-delay: 0.24s; }
+.about-badges.badges-visible .badge:nth-child(6)  { transition-delay: 0.29s; }
+.about-badges.badges-visible .badge:nth-child(7)  { transition-delay: 0.34s; }
+.about-badges.badges-visible .badge:nth-child(8)  { transition-delay: 0.39s; }
+.about-badges.badges-visible .badge:nth-child(9)  { transition-delay: 0.44s; }
+.about-badges.badges-visible .badge:nth-child(10) { transition-delay: 0.49s; }
+
+/* ── LIVE PROJECT DOT ───────────────────────────────────────── */
+.project-live-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+}
+.live-dot {
+  position: relative;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulseDot 1.2s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
+}
+.live-dot::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.25);
+  animation: pulseDot 1.2s infinite ease-in-out;
+}
+
+/* ── REDUCED MOTION ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:  0.001ms !important;
+    animation-delay:     0ms     !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal,
+  .hero-tag, .hero-name, .hero-title,
+  .hero-desc, .hero-cta, .hero-stats, .hero-scroll-hint,
+  .about-badges .badge {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

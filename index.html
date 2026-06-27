@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Hussain — BS Software Engineering graduate specialising in AI, Computer Vision, and Deep Learning." />
+  <title>Hussain — Software Engineer · AI &amp; Computer Vision</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     CUSTOM CURSOR
+     ══════════════════════════════════════════════════════════ -->
+<div class="cursor-dot"  id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE PROGRESS BAR
+     ══════════════════════════════════════════════════════════ -->
+<div class="page-progress" id="pageProgress"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     NAVIGATION
+     ══════════════════════════════════════════════════════════ -->
+<nav id="mainNav">
+  <a href="#hero" class="nav-logo">H.</a>
+
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#publications">Publications</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="toggleMobileNav()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile Nav Drawer -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#about"        onclick="closeMobileNav()">About</a>
+  <a href="#skills"       onclick="closeMobileNav()">Skills</a>
+  <a href="#experience"   onclick="closeMobileNav()">Experience</a>
+  <a href="#projects"     onclick="closeMobileNav()">Projects</a>
+  <a href="#education"    onclick="closeMobileNav()">Education</a>
+  <a href="#publications" onclick="closeMobileNav()">Publications</a>
+  <a href="#contact"      onclick="closeMobileNav()">Contact</a>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     HERO
+     ══════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-accent-line"></div>
+  <div class="hero-accent-line-2"></div>
+
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <div class="hero-inner">
+
+    <div class="hero-tag">
+      <span class="hero-tag-dot"></span>
+      BS Software Engineering · Iqra University &nbsp;·&nbsp; Open to Opportunities &nbsp;·&nbsp;
+      <a href="https://github.com/Hussain-Innovator" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+
+    <h1 class="hero-name">
+      Hussain<span class="accent">.</span>
+    </h1>
+
+    <p class="hero-title">
+      AI &amp; Deep Learning
+      <span class="hero-title-sep"></span>
+      Computer Vision
+      <span class="hero-title-sep"></span>
+      Frontend Development
+    </p>
+
+    <p class="hero-desc">
+      BS Software Engineering graduate specialising in AI, Computer Vision,
+      and Frontend Development. Built and deployed FetalNet — a medical
+      imaging CNN achieving 93% accuracy — and have 2+ years of real-world
+      freelance and industry experience across AI research, data analysis,
+      and IT.
+    </p>
+
+    <div class="hero-cta">
+      <a href="#projects"         class="btn-primary">View My Work &nbsp;→</a>
+      <a href="#contact"          class="btn-outline">Get In Touch</a>
+      <a href="CV-Hussain.pdf" download class="btn-outline">Download CV ↓</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat-item">
+        <div class="hero-stat-num" data-count="10">10+</div>
+        <div class="hero-stat-label">Technologies Used</div>
+      </div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num" data-count="6">6</div>
+        <div class="hero-stat-label">Projects Completed</div>
+      </div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num" data-count="2">2+</div>
+        <div class="hero-stat-label">Years Experience</div>
+      </div>
+    </div>
+
+  </div><!-- /hero-inner -->
+
+  <div class="hero-scroll-hint">
+    <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     ABOUT
+     ══════════════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="max-w">
+
+    <div class="section-header reveal">
+      <div class="section-label">Who I Am</div>
+      <h2 class="section-title">About Me</h2>
+      <p class="section-subtitle">Engineer by discipline, researcher by curiosity — building at the edge of AI.</p>
+    </div>
+
+    <div class="about-grid">
+
+      <!-- Profile card -->
+      <div class="reveal from-left">
+        <div class="about-profile-card">
+          <div class="profile-avatar">H</div>
+          <div class="profile-name">Hussain</div>
+          <div class="profile-role">BS Software Engineering Graduate</div>
+
+          <div class="profile-stat">
+            <span class="label">Specialization</span>
+            <span class="value">AI · CV · Deep Learning</span>
+          </div>
+          <div class="profile-stat">
+            <span class="label">Primary Stack</span>
+            <span class="value">Python · PyTorch · Streamlit</span>
+          </div>
+          <div class="profile-stat">
+            <span class="label">University</span>
+            <span class="value">Iqra University</span>
+          </div>
+          <div class="profile-stat">
+            <span class="label">Degree</span>
+            <span class="value">BS Software Engineering</span>
+          </div>
+          <div class="profile-stat">
+            <span class="label">FYP Supervisor</span>
+            <span class="value">Mr. Fahad Najeeb</span>
+          </div>
+
+          <div class="availability-badge">
+            <span class="availability-dot"></span>
+            Available for new opportunities
+          </div>
+        </div>
+      </div>
+
+      <!-- Bio & badges -->
+      <div class="about-content reveal">
+        <p>
+          I'm a BS Software Engineering graduate from Iqra University with a strong foundation
+          in artificial intelligence, computer vision, and deep learning. My final year project —
+          <em>Fine-Grained Classification of Fetal Ultrasound Planes</em> — developed FetalNet,
+          a custom MobileNetV2 + SE Block architecture trained on 12,400 ultrasound images,
+          achieving a test accuracy of 93.01%.
+        </p>
+        <p>
+          The project integrated four Explainable AI techniques (Grad-CAM, Guided Backpropagation,
+          Integrated Gradients, and Occlusion Sensitivity) and was deployed as an interactive
+          Streamlit web application — making AI-driven prenatal diagnostics accessible and
+          interpretable for clinicians.
+        </p>
+        <p>
+          I believe great engineering is as much about clarity of thinking as it is about writing
+          code. I strive to build systems that are interpretable, maintainable, and genuinely
+          impactful — especially in domains where the stakes are as high as healthcare.
+        </p>
+
+        <div class="tech-stack-label">Core Technologies</div>
+        <div class="about-badges" id="aboutBadges">
+          <span class="badge">Python</span>
+          <span class="badge">PyTorch</span>
+          <span class="badge">TensorFlow</span>
+          <span class="badge">OpenCV</span>
+          <span class="badge">MobileNetV2</span>
+          <span class="badge">Streamlit</span>
+          <span class="badge">Captum (XAI)</span>
+          <span class="badge">Scikit-learn</span>
+          <span class="badge">Pandas</span>
+          <span class="badge">JavaScript</span>
+        </div>
+      </div>
+
+    </div><!-- /about-grid -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SKILLS
+     ══════════════════════════════════════════════════════════ -->
+<section id="skills">
+  <div class="max-w">
+
+    <div class="section-header reveal">
+      <div class="section-label">Expertise</div>
+      <h2 class="section-title">Skills &amp; Technologies</h2>
+      <p class="section-subtitle">End-to-end capabilities across research, engineering, and product.</p>
+    </div>
+
+    <div class="skills-grid stagger">
+
+      <div class="skill-card reveal">
+        <div class="skill-icon-wrap">🧠</div>
+        <h3>Deep Learning</h3>
+        <p>Designing and training CNNs for vision tasks — custom architectures, transfer learning, and two-phase training strategies in PyTorch.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">PyTorch</span>
+          <span class="skill-tag">TensorFlow / Keras</span>
+          <span class="skill-tag">MobileNetV2</span>
+          <span class="skill-tag">SE Block</span>
+        </div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-row"><span>Proficiency</span><span>88%</span></div>
+          <div class="skill-bar-track"><div class="skill-bar-fill" data-width="88"></div></div>
+        </div>
+      </div>
+
+      <div class="skill-card reveal">
+        <div class="skill-icon-wrap">👁️</div>
+        <h3>Computer Vision</h3>
+        <p>Image classification, medical imaging, real-time webcam inference, and Explainable AI visualisation on CNN outputs.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">OpenCV</span>
+          <span class="skill-tag">EfficientNet</span>
+          <span class="skill-tag">Grad-CAM</span>
+          <span class="skill-tag">Captum</span>
+        </div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-row"><span>Proficiency</span><span>85%</span></div>
+          <div class="skill-bar-track"><div class="skill-bar-fill" data-width="85"></div></div>
+        </div>
+      </div>
+
+      <div class="skill-card reveal">
+        <div class="skill-icon-wrap">📊</div>
+        <h3>Data Science</h3>
+        <p>End-to-end data workflows — cleaning, EDA, feature engineering, classification modelling, and interactive visualisation.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">Pandas</span>
+          <span class="skill-tag">NumPy</span>
+          <span class="skill-tag">Scikit-learn</span>
+          <span class="skill-tag">Matplotlib</span>
+        </div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-row"><span>Proficiency</span><span>82%</span></div>
+          <div class="skill-bar-track"><div class="skill-bar-fill" data-width="82"></div></div>
+        </div>
+      </div>
+
+      <div class="skill-card reveal">
+        <div class="skill-icon-wrap">🚀</div>
+        <h3>Deployment &amp; Tools</h3>
+        <p>Building and deploying ML-powered web applications with Streamlit and managing projects with Git, Colab, and VS Code.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">Streamlit</span>
+          <span class="skill-tag">Google Colab</span>
+          <span class="skill-tag">Git / GitHub</span>
+          <span class="skill-tag">Power BI</span>
+        </div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-row"><span>Proficiency</span><span>80%</span></div>
+          <div class="skill-bar-track"><div class="skill-bar-fill" data-width="80"></div></div>
+        </div>
+      </div>
+
+      <div class="skill-card reveal">
+        <div class="skill-icon-wrap">💻</div>
+        <h3>Frontend Development</h3>
+        <p>Building clean, responsive UIs with HTML, CSS, and JavaScript. 2+ years of freelance client work delivering production interfaces.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">HTML / CSS</span>
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">React</span>
+          <span class="skill-tag">Responsive Design</span>
+        </div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-row"><span>Proficiency</span><span>78%</span></div>
+          <div class="skill-bar-track"><div class="skill-bar-fill" data-width="78"></div></div>
+        </div>
+      </div>
+
+    </div><!-- /skills-grid -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     EXPERIENCE
+     ══════════════════════════════════════════════════════════ -->
+<section id="experience">
+  <div class="max-w">
+
+    <div class="section-header reveal">
+      <div class="section-label">Career</div>
+      <h2 class="section-title light">Work Experience</h2>
+      <p class="section-subtitle light">A record of roles, responsibilities, and impact.</p>
+    </div>
+
+    <div class="exp-grid">
+
+      <div class="exp-nav reveal from-left">
+        <div class="exp-nav-item active" onclick="switchExp(0, this)">
+          <div class="exp-nav-role">Freelance Frontend Developer</div>
+          <div class="exp-nav-company">Remote · Jan 2023 – Aug 2024</div>
+        </div>
+        <div class="exp-nav-item" onclick="switchExp(1, this)">
+          <div class="exp-nav-role">Researcher &amp; Model Developer</div>
+          <div class="exp-nav-company">Remote · Oct 2024 – Ongoing</div>
+        </div>
+        <div class="exp-nav-item" onclick="switchExp(2, this)">
+          <div class="exp-nav-role">Data Analyst</div>
+          <div class="exp-nav-company">Knots Solutions · Aug 2025 – Sep 2025</div>
+        </div>
+        <div class="exp-nav-item" onclick="switchExp(3, this)">
+          <div class="exp-nav-role">IT Assistant</div>
+          <div class="exp-nav-company">Noor Recruiting Agency · Sep 2025 – Jan 2026</div>
+        </div>
+      </div>
+
+      <div class="exp-content-panel reveal">
+
+        <div class="exp-panel active" id="exp-0">
+          <div class="exp-period">Jan 2023 — Aug 2024</div>
+          <div class="exp-title">Freelance Frontend Developer</div>
+          <div class="exp-company">Remote</div>
+          <div class="exp-highlights">
+            <span class="exp-highlight">HTML</span>
+            <span class="exp-highlight">CSS</span>
+            <span class="exp-highlight">JavaScript</span>
+            <span class="exp-highlight">Responsive Design</span>
+            <span class="exp-highlight">Client Communication</span>
+          </div>
+          <ul class="exp-list">
+            <li>Built responsive and interactive interfaces for clients across multiple industries.</li>
+            <li>Collaborated with teams on real-world projects and participated in structured code reviews.</li>
+            <li>Managed direct client communication to gather requirements and deliver requested features on schedule.</li>
+          </ul>
+        </div>
+
+        <div class="exp-panel" id="exp-1">
+          <div class="exp-period">Oct 2024 — Ongoing</div>
+          <div class="exp-title">Researcher &amp; Model Developer</div>
+          <div class="exp-company">Remote</div>
+          <div class="exp-highlights">
+            <span class="exp-highlight">Medical Imaging</span>
+            <span class="exp-highlight">Machine Learning</span>
+            <span class="exp-highlight">Deep Learning</span>
+            <span class="exp-highlight">Data Analysis</span>
+            <span class="exp-highlight">Model Evaluation</span>
+          </div>
+          <ul class="exp-list">
+            <li>Worked on medical imaging projects involving data collection, preprocessing, and analysis.</li>
+            <li>Developed and implemented machine learning and AI models for clinical classification tasks.</li>
+            <li>Conducted systematic research and experiments to iteratively improve model accuracy and generalisation.</li>
+            <li>Prepared detailed reports and visualisations of results for research documentation and review.</li>
+          </ul>
+        </div>
+
+        <div class="exp-panel" id="exp-2">
+          <div class="exp-period">Aug 2025 — Sep 2025</div>
+          <div class="exp-title">Data Analyst</div>
+          <div class="exp-company">Knots Solutions (Pvt) Ltd · Karachi, Pakistan</div>
+          <div class="exp-highlights">
+            <span class="exp-highlight">Data Analysis</span>
+            <span class="exp-highlight">Dashboards</span>
+            <span class="exp-highlight">Reporting</span>
+            <span class="exp-highlight">Data Accuracy</span>
+            <span class="exp-highlight">Strategic Insights</span>
+          </div>
+          <ul class="exp-list">
+            <li>Collected and processed datasets to support business reporting and decision-making workflows.</li>
+            <li>Performed data analysis to extract actionable insights and identify key trends.</li>
+            <li>Assisted in creating dashboards and visual reports for internal stakeholders.</li>
+            <li>Improved data accuracy and supported day-to-day operational processes.</li>
+            <li>Provided data-driven recommendations to inform strategic initiatives.</li>
+          </ul>
+        </div>
+
+        <div class="exp-panel" id="exp-3">
+          <div class="exp-period">Sep 2025 — Jan 2026</div>
+          <div class="exp-title">IT Assistant</div>
+          <div class="exp-company">Noor Recruiting Agency · Islamabad, Pakistan</div>
+          <div class="exp-highlights">
+            <span class="exp-highlight">IT Support</span>
+            <span class="exp-highlight">Network Management</span>
+            <span class="exp-highlight">Hardware</span>
+            <span class="exp-highlight">Data Security</span>
+            <span class="exp-highlight">Troubleshooting</span>
+          </div>
+          <ul class="exp-list">
+            <li>Managed and maintained IT systems, networks, and hardware/software to ensure smooth daily operations.</li>
+            <li>Provided technical support and resolved hardware and software issues for staff and clients.</li>
+            <li>Ensured data security, backups, and system updates were properly implemented and monitored.</li>
+            <li>Communicated with clients and vendors to resolve IT-related concerns efficiently.</li>
+          </ul>
+        </div>
+
+      </div><!-- /exp-content-panel -->
+    </div><!-- /exp-grid -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     PROJECTS
+     ══════════════════════════════════════════════════════════ -->
+<section id="projects">
+  <div class="max-w">
+
+    <div class="section-header reveal">
+      <div class="section-label">Portfolio</div>
+      <h2 class="section-title">Featured Projects</h2>
+      <p class="section-subtitle">Selected work from my degree and professional career.</p>
+    </div>
+
+    <div class="projects-filter reveal">
+      <button class="filter-btn active" onclick="filterProjects('all', this)">All</button>
+      <button class="filter-btn" onclick="filterProjects('cv', this)">Computer Vision</button>
+      <button class="filter-btn" onclick="filterProjects('dl', this)">Deep Learning</button>
+      <button class="filter-btn" onclick="filterProjects('web', this)">Deployment</button>
+    </div>
+
+    <div class="projects-grid stagger" id="projectsGrid">
+
+      <!-- 01 — FetalNet FYP -->
+      <div class="project-card reveal" data-category="cv dl xai web">
+        <div class="project-number">01</div>
+        <div class="project-type">Final Year Project · Deep Learning · Computer Vision · Explainable AI</div>
+        <h3>FetalNet — Fine-Grained Fetal Ultrasound Plane Classifier</h3>
+        <p>Designed and built FetalNet, a custom MobileNetV2 + Squeeze-and-Excitation architecture for automated classification of fetal ultrasound images into 6 anatomical planes. Trained on 12,400 labeled images from FETAL_PLANES_DB achieving 93.01% test accuracy and weighted F1-score of 0.93. Integrated four XAI techniques — Grad-CAM, Guided Backpropagation, Integrated Gradients, and Occlusion Sensitivity — for clinical interpretability. Deployed as an interactive multi-page Streamlit application with real-time prediction and XAI visualisation tabs.</p>
+        <div class="project-stack">
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">PyTorch</span>
+          <span class="stack-tag">MobileNetV2</span>
+          <span class="stack-tag">SE Block</span>
+          <span class="stack-tag">Grad-CAM</span>
+          <span class="stack-tag">Captum</span>
+          <span class="stack-tag">Streamlit</span>
+          <span class="stack-tag">Scikit-learn</span>
+          <span class="stack-tag">OpenCV</span>
+          <span class="stack-tag">Google Colab</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Hussain-Innovator/fetalNet-Classifier.git" class="project-link" target="_blank" rel="noopener">View Code</a>
+          <a href="projects/fetalnet.html" class="project-link" target="_blank" rel="noopener">Architecture</a>
+          <a href="https://fetalnet-classifier-hm.streamlit.app/" class="project-link" target="_blank" rel="noopener">Live App <span class="project-live-badge"><span class="live-dot"></span></span></a>
+        </div>
+      </div>
+
+      <!-- 02 — Enhanced CNN CIFAR-10 -->
+      <div class="project-card reveal" data-category="dl web">
+        <div class="project-number">02</div>
+        <div class="project-type">Python · TensorFlow · Streamlit · Hugging Face</div>
+        <h3>Enhanced CNN — CIFAR-10 Classifier</h3>
+        <p>Hybrid CNN architecture combining Residual Connections, Squeeze-and-Excitation Attention, and Depthwise Separable Convolutions trained on 50,000 images across 10 classes. Achieves 90.93% test accuracy and 98.71% Top-3 accuracy. Deployed via Streamlit and Hugging Face Spaces using ONNX Runtime.</p>
+        <div class="project-stack">
+          <span class="stack-tag">TensorFlow</span>
+          <span class="stack-tag">Keras</span>
+          <span class="stack-tag">ONNX</span>
+          <span class="stack-tag">ResNet</span>
+          <span class="stack-tag">SE Attention</span>
+          <span class="stack-tag">Streamlit</span>
+          <span class="stack-tag">Gradio</span>
+          <span class="stack-tag">CIFAR-10</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Hussain-Innovator/CIFAR10-EnhancedCNN" class="project-link" target="_blank" rel="noopener">View Code</a>
+          <a href="projects/cifar10_architecture.html" class="project-link" target="_blank" rel="noopener">Architecture</a>
+          <a href="https://cifar10-enhancedcnn-z9c2z2ar7cxkzniafepr5g.streamlit.app/" class="project-link" target="_blank" rel="noopener">Live App <span class="project-live-badge"><span class="live-dot"></span></span></a>
+        </div>
+      </div>
+
+      <!-- 03 — Password Meter -->
+      <div class="project-card reveal" data-category="web">
+        <div class="project-number">03</div>
+        <div class="project-type">Python · Streamlit App</div>
+        <h3>Password Strength Meter</h3>
+        <p>Interactive Streamlit web application that evaluates password strength in real time. Checks security rules like length, uppercase, lowercase, numbers, and special characters, then classifies as Weak, Medium, or Strong.</p>
+        <div class="project-stack">
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">Streamlit</span>
+          <span class="stack-tag">String Logic</span>
+          <span class="stack-tag">Validation</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Hussain-Innovator/Password-Strength-Meter.git" class="project-link" target="_blank" rel="noopener">View Code</a>
+          <a href="https://password-strength-meter-iqsmvnhxxw5jvadcutyhpm.streamlit.app/" class="project-link" target="_blank" rel="noopener">Live App <span class="project-live-badge"><span class="live-dot"></span></span></a>
+        </div>
+      </div>
+
+      <!-- 03 — Unit Converter -->
+      <div class="project-card reveal" data-category="web">
+        <div class="project-number">03</div>
+        <div class="project-type">Python · Streamlit App</div>
+        <h3>Unit Converter App</h3>
+        <p>Clean and interactive unit conversion web application built with Streamlit. Supports real-time conversion between length and temperature units. Built to practice modular Python logic, lambda functions, and structured programming.</p>
+        <div class="project-stack">
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">Streamlit</span>
+          <span class="stack-tag">Logic Building</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Hussain-Innovator/UnitConverterApp.git" class="project-link" target="_blank" rel="noopener">View Code</a>
+          <a href="https://unit-converter-app-hussain.streamlit.app/" class="project-link" target="_blank" rel="noopener">Live App <span class="project-live-badge"><span class="live-dot"></span></span></a>
+        </div>
+      </div>
+
+      <!-- 04 — Library Manager -->
+      <div class="project-card reveal" data-category="web">
+        <div class="project-number">04</div>
+        <div class="project-type">Python · Streamlit App</div>
+        <h3>Personal Library Manager</h3>
+        <p>Streamlit web application for managing a personal book collection. Users can add, remove, search, and track reading progress with persistent storage using a local JSON file.</p>
+        <div class="project-stack">
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">Streamlit</span>
+          <span class="stack-tag">JSON Storage</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Hussain-Innovator/Personal-Library-Manager.git" class="project-link" target="_blank" rel="noopener">View Code</a>
+          <a href="https://personal-library-manager-4jghrphmlbc3ceteacg46w.streamlit.app/" class="project-link" target="_blank" rel="noopener">Live App <span class="project-live-badge"><span class="live-dot"></span></span></a>
+        </div>
+      </div>
+
+      <!-- 05 — Address Book -->
+      <div class="project-card reveal" data-category="web">
+        <div class="project-number">05</div>
+        <div class="project-type">Java · Console Application</div>
+        <h3>Address Book System</h3>
+        <p>Java-based console application for managing contacts with full CRUD operations. Users can add, view, search, update, and delete contacts with file-based storage support.</p>
+        <div class="project-stack">
+          <span class="stack-tag">Java</span>
+          <span class="stack-tag">OOP</span>
+          <span class="stack-tag">File Handling</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Hussain-Innovator/AddressBookSystem.git" class="project-link" target="_blank" rel="noopener">View Code</a>
+        </div>
+      </div>
+
+    </div><!-- /projects-grid -->
+  </div><!-- /max-w -->
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     EDUCATION
+     ══════════════════════════════════════════════════════════ -->
+<section id="education">
+  <div class="max-w">
+
+    <div class="section-header reveal">
+      <div class="section-label">Academic Background</div>
+      <h2 class="section-title">Education</h2>
+      <p class="section-subtitle">The foundation that shapes how I think about problems.</p>
+    </div>
+
+    <div class="edu-grid stagger">
+
+      <div class="edu-card reveal">
+        <span class="edu-icon">🎓</span>
+        <div class="edu-degree">BS Software Engineering</div>
+        <div class="edu-institution">Iqra University — Faculty of Engineering, Sciences &amp; Technology</div>
+        <div class="edu-period">2021 – 2025 · Final Year Project: Distinction (Turnitin 10%)</div>
+        <div class="edu-details">
+          Completed a four-year BS Software Engineering programme with a specialisation in Artificial
+          Intelligence and Computer Vision. Final Year Project — <em>Fine-Grained Classification of
+          Fetal Ultrasound Planes</em> — achieved 93.01% test accuracy using a custom MobileNetV2 +
+          SE Block architecture (FetalNet), with Streamlit deployment and four integrated XAI techniques.
+        </div>
+        <div class="edu-highlights">
+          <span class="edu-highlight">Artificial Intelligence</span>
+          <span class="edu-highlight">Machine Learning</span>
+          <span class="edu-highlight">Digital Image Processing</span>
+          <span class="edu-highlight">Data Science</span>
+          <span class="edu-highlight">Software Engineering</span>
+          <span class="edu-highlight">Research Methods</span>
+          <span class="edu-highlight">FYP Supervisor: Mr. Fahad Najeeb</span>
+        </div>
+      </div>
+
+      <div class="edu-card reveal">
+        <span class="edu-icon">📜</span>
+        <div class="edu-degree">FYP Research &amp; Technical Skills</div>
+        <div class="edu-institution">Iqra University · Final Year Capstone</div>
+        <div class="edu-period">2024 – 2025</div>
+        <div class="edu-details">
+          Deep hands-on experience gained through the final year project in model architecture design,
+          two-phase training strategy, medical image preprocessing, Explainable AI integration, ablation
+          studies, and cloud-based model deployment on Google Colab Pro (Tesla T4 GPU).
+        </div>
+        <div class="edu-highlights">
+          <span class="edu-highlight">PyTorch · TorchVision</span>
+          <span class="edu-highlight">Captum XAI Library</span>
+          <span class="edu-highlight">Streamlit Deployment</span>
+          <span class="edu-highlight">Google Colab Pro (Tesla T4)</span>
+          <span class="edu-highlight">Git &amp; GitHub</span>
+          <span class="edu-highlight">FETAL_PLANES_DB Dataset</span>
+          <span class="edu-highlight">Scikit-learn · Pandas · OpenCV</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     RESEARCH & REPORTS  (renamed from Publications)
+     ══════════════════════════════════════════════════════════ -->
+<section id="publications">
+  <div class="max-w">
+
+    <div class="section-header reveal">
+      <div class="section-label">Research</div>
+      <h2 class="section-title">Research &amp; Reports</h2>
+      <p class="section-subtitle">Academic contributions and technical writing on AI and computer vision.</p>
+    </div>
+
+    <div class="pub-list stagger">
+
+      <div class="pub-item reveal">
+        <div class="pub-year">2025</div>
+        <div>
+          <div class="pub-title">Fine-Grained Classification of Fetal Ultrasound Planes — FetalNet Final Year Project Report</div>
+          <div class="pub-venue">Iqra University, Faculty of Engineering, Sciences &amp; Technology · BS Software Engineering · Supervised by Mr. Fahad Najeeb</div>
+          <div class="pub-desc">Developed FetalNet — a hybrid MobileNetV2 + SE Block deep learning architecture for six-class fetal ultrasound plane classification. Trained on the public FETAL_PLANES_DB (12,400 images). Two-phase training achieved a final test accuracy of 93.01% and weighted F1-score of 0.93. Integrated Grad-CAM, Guided Backpropagation, Integrated Gradients, and Occlusion Sensitivity for clinical interpretability. Deployed via Streamlit. Turnitin similarity: 10%.</div>
+          <div class="pub-tags">
+            <span class="pub-tag">Medical Imaging</span>
+            <span class="pub-tag">Deep Learning</span>
+            <span class="pub-tag">Computer Vision</span>
+            <span class="pub-tag">Explainable AI</span>
+            <span class="pub-tag">MobileNetV2</span>
+            <span class="pub-tag">SE Block</span>
+            <span class="pub-tag">Streamlit</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pub-item reveal">
+        <div class="pub-year">2025</div>
+        <div>
+          <div class="pub-title">Ablation Study: Contribution of SE Block, Convolutional Layers &amp; Pooling Strategy in FetalNet</div>
+          <div class="pub-venue">FYP Internal Research · Iqra University</div>
+          <div class="pub-desc">Systematic component-level ablation study comparing the full FetalNet (93.01% accuracy) against three ablated variants: removing the SE Block (92.00%), removing the second convolutional layer (92.64%), and replacing MaxPool with AvgPool (92.37%). Results confirmed the positive contribution of each architectural component to final performance.</div>
+          <div class="pub-tags">
+            <span class="pub-tag">Ablation Study</span>
+            <span class="pub-tag">SE Attention</span>
+            <span class="pub-tag">Architecture Research</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pub-item reveal">
+        <div class="pub-year">2025</div>
+        <div>
+          <div class="pub-title">XAI Evaluation: Qualitative Analysis of Grad-CAM, Integrated Gradients &amp; Guided Backpropagation on Fetal Ultrasound</div>
+          <div class="pub-venue">FYP Chapter 7 — Testing &amp; Evaluation · Iqra University</div>
+          <div class="pub-desc">Qualitative evaluation of four Explainable AI techniques applied to FetalNet predictions. Grad-CAM highlighted broad anatomical regions; Guided Backpropagation revealed pixel-level features; Integrated Gradients provided stable attribution maps; Occlusion Sensitivity identified critical regions by systematic masking. All visualisations confirmed the model focused on clinically relevant areas.</div>
+          <div class="pub-tags">
+            <span class="pub-tag">XAI Evaluation</span>
+            <span class="pub-tag">Grad-CAM</span>
+            <span class="pub-tag">Clinical AI</span>
+          </div>
+        </div>
+      </div>
+      <div class="pub-item reveal">
+  <div class="pub-year">2026</div>
+  <div>
+    <div class="pub-title">Hybrid CNN — CIFAR-10 Image Classifier Technical Report</div>
+    <div class="pub-venue">Independent Research · Self Study &amp; Technical Report · Author: Hussain</div>
+    <div class="pub-desc">
+      Designed and implemented a custom hybrid CNN architecture for CIFAR-10 image classification by integrating Residual Connections, Squeeze-and-Excitation (SE) Attention, and Depthwise Separable Convolutions. Trained on the CIFAR-10 dataset containing 60,000 labeled images across 10 object categories. Achieved 90.93% test accuracy, 98.71% Top-3 accuracy, and a Macro F1-score of 0.91 using MixUp augmentation, label smoothing, cosine annealing learning rate scheduling, and linear warmup. Converted the trained model to ONNX format and deployed it as interactive Streamlit and Hugging Face applications using ONNX Runtime for efficient CPU inference.
+    </div>
+    <div class="pub-tags">
+      <span class="pub-tag">Deep Learning</span>
+      <span class="pub-tag">Computer Vision</span>
+      <span class="pub-tag">CNN Architecture</span>
+      <span class="pub-tag">Residual Networks</span>
+      <span class="pub-tag">SE Attention</span>
+      <span class="pub-tag">TensorFlow</span>
+      <span class="pub-tag">ONNX Runtime</span>
+      <span class="pub-tag">Streamlit</span>
+      <span class="pub-tag">Hugging Face</span>
+    </div>
+  </div>
+</div>
+
+    </div><!-- /pub-list -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONTACT
+     ══════════════════════════════════════════════════════════ -->
+<section id="contact">
+  <div class="contact-orb"></div>
+  <div class="max-w">
+
+    <div class="section-header reveal">
+      <div class="section-label">Let's Connect</div>
+      <h2 class="section-title light">Get In Touch</h2>
+      <p class="section-subtitle light">Open to collaborations, research opportunities, and interesting projects.</p>
+    </div>
+
+    <div class="contact-grid">
+
+      <div class="reveal from-left">
+        <p class="section-subtitle" style="color:rgba(255,255,255,0.48); margin-bottom:2rem; max-width:none;">
+          I'm always open to discussing interesting projects, research collaborations,
+          or new opportunities. Whether you have a question about my work or just want
+          to say hello — my inbox is open.
+        </p>
+
+        <div class="contact-links">
+          <a href="mailto:hussainsamdani5686@gmail.com" class="contact-link">
+            <div class="contact-icon">✉</div>
+            <div class="contact-link-text">
+              <div class="contact-link-label">Email</div>
+              <div class="contact-link-value">hussainsamdani5686@gmail.com</div>
+            </div>
+            <span>→</span>
+          </a>
+          <a href="https://www.linkedin.com/in/hussain56/" class="contact-link" target="_blank" rel="noopener">
+            <div class="contact-icon">in</div>
+            <div class="contact-link-text">
+              <div class="contact-link-label">LinkedIn</div>
+              <div class="contact-link-value">linkedin.com/in/hussain56</div>
+            </div>
+            <span>→</span>
+          </a>
+          <a href="https://github.com/Hussain-Innovator" class="contact-link" target="_blank" rel="noopener">
+            <div class="contact-icon">⌥</div>
+            <div class="contact-link-text">
+              <div class="contact-link-label">GitHub</div>
+              <div class="contact-link-value">github.com/Hussain-Innovator</div>
+            </div>
+            <span>→</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="contact-form-wrap">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="formName">Your Name</label>
+              <input type="text" id="formName" placeholder="Your name" />
+            </div>
+            <div class="form-group">
+              <label for="formEmail">Email Address</label>
+              <input type="email" id="formEmail" placeholder="your@email.com" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="formSubject">Subject</label>
+            <input type="text" id="formSubject" placeholder="Project collaboration / Opportunity" />
+          </div>
+          <div class="form-group">
+            <label for="formMessage">Message</label>
+            <textarea id="formMessage" rows="5" placeholder="Tell me about your project or opportunity…"></textarea>
+          </div>
+          <a href="mailto:hussainsamdani5686@gmail.com" class="btn-primary" style="display:flex; width:100%; justify-content:center; margin-top:0.25rem;">
+            Send Message &nbsp;→
+          </a>
+          <p class="form-note">
+            Clicking opens your email client. For a hosted form connect
+            <a href="https://formspree.io" target="_blank" rel="noopener">Formspree</a>
+            or Netlify Forms — both are free.
+          </p>
+        </div>
+      </div>
+
+    </div><!-- /contact-grid -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FOOTER
+     ══════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Hussain.</div>
+    <p class="footer-text">© <span id="footerYear"></span> Hussain · Software Engineer, Iqra University</p>
+    <div class="footer-links">
+      <a href="#about">About</a>
+      <a href="#projects">Work</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to top -->
+<a href="#hero" class="back-to-top" id="backToTop" aria-label="Back to top">↑</a>
+
+<!-- Scripts -->
+<script src="js/script.js"></script>
+<script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
+
+</body>
+</html>

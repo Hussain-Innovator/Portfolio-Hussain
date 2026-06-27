@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="description" content="Enhanced CNN — CIFAR-10 Image Classifier. Custom hybrid architecture with ResNet, SE Attention, and Depthwise Separable Convolutions." />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enhanced CNN — CIFAR-10 Classifier</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0b0c10;
+  --bg2:       #111218;
+  --bg3:       #16181f;
+  --border:    #252830;
+  --text:      #dde1ea;
+  --muted:     #7a7f8e;
+  --white:     #ffffff;
+  --teal:      #1D9E75;
+  --teal-dim:  rgba(29,158,117,.12);
+  --purple:    #534AB7;
+  --purple-dim:rgba(83,74,183,.12);
+  --blue:      #378ADD;
+  --blue-dim:  rgba(55,138,221,.12);
+  --amber:     #BA7517;
+  --amber-dim: rgba(186,117,23,.12);
+  --coral:     #C0504D;
+  --coral-dim: rgba(192,80,77,.12);
+  --font-body: 'Inter', Arial, sans-serif;
+  --font-prose:'Lora', Georgia, serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  padding: 0; margin: 0;
+  line-height: 1.65;
+}
+
+/* NEURAL OVERLAY */
+.neural-overlay {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; opacity: 0; }
+.p1 { background:#378ADD; box-shadow:0 0 12px #378ADD; animation: flow1 6s linear infinite; }
+.p2 { background:#1D9E75; box-shadow:0 0 12px #1D9E75; animation: flow2 7s linear infinite; }
+.p3 { background:#534AB7; box-shadow:0 0 12px #534AB7; animation: flow3 8s linear infinite; }
+.p4 { background:#BA7517; box-shadow:0 0 12px #BA7517; animation: flow4 6.5s linear infinite; }
+.p5 { background:#fff;    box-shadow:0 0 10px #fff;    animation: flow5 7.5s linear infinite; }
+
+@keyframes flow1 { 0%{transform:translate(-10vw,20vh);opacity:0} 10%{opacity:1} 100%{transform:translate(110vw,80vh);opacity:0} }
+@keyframes flow2 { 0%{transform:translate(-10vw,60vh);opacity:0} 15%{opacity:1} 100%{transform:translate(110vw,10vh);opacity:0} }
+@keyframes flow3 { 0%{transform:translate(-10vw,90vh);opacity:0} 20%{opacity:1} 100%{transform:translate(110vw,30vh);opacity:0} }
+@keyframes flow4 { 0%{transform:translate(-10vw,40vh);opacity:0} 25%{opacity:1} 100%{transform:translate(110vw,70vh);opacity:0} }
+@keyframes flow5 { 0%{transform:translate(-10vw,10vh);opacity:0} 30%{opacity:1} 100%{transform:translate(110vw,90vh);opacity:0} }
+
+/* PAGE WRAPPER */
+.page-wrap {
+  position: relative; z-index: 1;
+  max-width: 860px; margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  display: inline-block; margin-bottom: 28px;
+  padding: 9px 18px; border: 1px solid var(--blue);
+  border-radius: 8px; color: var(--blue);
+  text-decoration: none; font-size: 13px; font-weight: 600;
+  transition: all .3s ease;
+}
+.back-btn:hover { background: var(--blue); color: #fff; box-shadow: 0 0 15px rgba(55,138,221,.35); }
+
+/* HERO */
+.hero {
+  border: 1px solid var(--border); border-radius: 16px;
+  background: var(--bg2); padding: 36px 32px 30px;
+  margin-bottom: 40px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(29,158,117,.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 12px;
+}
+.hero-title {
+  font-family: var(--font-prose);
+  font-size: clamp(24px, 4vw, 34px); font-weight: 600;
+  color: var(--white); line-height: 1.25; margin-bottom: 14px;
+}
+.hero-title span { color: var(--teal); font-style: italic; }
+.hero-summary {
+  font-family: var(--font-prose); font-size: 15px;
+  color: #b8bec8; line-height: 1.8; max-width: 640px; margin-bottom: 22px;
+}
+.hero-meta {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  font-size: 12px; color: var(--muted);
+}
+.hero-meta span {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 10px;
+}
+.hero-meta strong { color: var(--text); }
+
+/* SECTION LABEL */
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted);
+  margin: 36px 0 16px; display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* PROSE */
+.prose {
+  font-family: var(--font-prose); font-size: 15px;
+  line-height: 1.85; color: #b8bec8; margin-bottom: 22px;
+}
+.prose strong { color: var(--white); font-weight: 600; }
+.prose em { color: var(--teal); font-style: italic; }
+
+/* CALLOUT */
+.callout {
+  border-left: 3px solid var(--teal);
+  background: rgba(29,158,117,.07); border-radius: 0 10px 10px 0;
+  padding: 14px 18px; margin-bottom: 22px;
+  font-family: var(--font-prose); font-size: 14px;
+  font-style: italic; color: #b8f0d8; line-height: 1.75;
+}
+.callout-amber { border-color: var(--amber); background: rgba(186,117,23,.07); color: #f0d5a0; }
+
+/* DATASET STATS GRID */
+.dataset-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-bottom: 24px;
+}
+.ds-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  transition: transform .25s ease, border-color .25s ease;
+}
+.ds-card:hover { transform: translateY(-2px); border-color: var(--teal); }
+.ds-num { font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+.ds-lbl { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.ds-bar { height: 3px; border-radius: 99px; margin-top: 10px; background: var(--border); overflow: hidden; }
+.ds-bar-fill { height: 100%; border-radius: 99px; background: var(--teal); transition: width 1s ease; }
+
+/* CLASS TABLE */
+.class-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px; }
+.class-table thead th {
+  text-align: left; padding: 10px 12px; color: var(--muted);
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; border-bottom: 1px solid var(--border);
+}
+.class-table tbody tr { border-bottom: 1px solid var(--border); transition: background .2s ease; }
+.class-table tbody tr:hover { background: var(--bg2); }
+.class-table tbody td { padding: 11px 12px; color: var(--text); vertical-align: middle; }
+.class-table td:first-child { color: var(--white); font-weight: 600; }
+.recall-bar-wrap { display: flex; align-items: center; gap: 10px; }
+.recall-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.recall-bar-fill { height: 100%; border-radius: 99px; }
+.recall-val { font-size: 12px; font-weight: 600; min-width: 38px; text-align: right; }
+
+/* METRICS */
+.metrics {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 10px; margin-top: 14px; margin-bottom: 14px;
+}
+.metric {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px; text-align: center;
+}
+.metric-num { font-size: 20px; font-weight: 700; color: #fff; }
+.metric-lbl { font-size: 11px; color: #8a8a8a; margin-top: 2px; }
+
+/* TRAINING CARDS */
+.train-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.train-card { border-radius: 10px; border: 1px solid var(--border); background: var(--bg2); padding: 14px 16px; }
+.train-card-title { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+.train-card-text { font-size: 12px; color: #b5b5b5; line-height: 1.7; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 28px; margin-bottom: 24px; }
+.timeline::before {
+  content: ''; position: absolute; left: 7px; top: 0; bottom: 0;
+  width: 1px; background: linear-gradient(to bottom, var(--teal), var(--blue), var(--border));
+}
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-item::before {
+  content: ''; position: absolute; left: -24px; top: 5px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--teal); transition: background .3s ease;
+}
+.tl-item:hover::before { background: var(--teal); }
+.tl-week { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); margin-bottom: 3px; }
+.tl-milestone { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 3px; }
+.tl-detail { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+/* ARCH SECTION */
+.arch-section { margin-top: 8px; }
+.stage {
+  display: grid; grid-template-columns: 260px 1px 1fr;
+  gap: 0 28px; margin-bottom: 6px;
+  border-radius: 10px; transition: all .3s ease;
+}
+.stage:hover { transform: translateY(-2px); box-shadow: 0 0 18px rgba(29,158,117,.15); }
+.stage-line { background: #2a2a2a; width: 1px; position: relative; overflow: hidden; }
+.stage-line::after {
+  content: ''; position: absolute; top: -50%; left: 0;
+  width: 100%; height: 40%;
+  background: linear-gradient(to bottom, transparent, rgba(29,158,117,.6), transparent);
+  animation: flowLine 2.8s linear infinite;
+}
+@keyframes flowLine { 0%{top:-40%} 100%{top:120%} }
+.stage-desc { display: flex; flex-direction: column; justify-content: center; padding: 14px 0; }
+.box {
+  border-radius: 10px; padding: 10px 16px; text-align: center;
+  font-size: 12px; font-weight: 600; width: 100%; border: 1px solid;
+  backdrop-filter: blur(6px);
+}
+.box .sub { font-size: 10px; font-weight: 400; margin-top: 3px; opacity: .8; }
+.box-gray   { background:#151515; border-color:#3a3a3a; color:#e6e6e6; }
+.box-teal   { background:var(--teal-dim); border-color:var(--teal); color:#bfffe6; }
+.box-purple { background:var(--purple-dim); border-color:var(--purple); color:#d6d0ff; }
+.box-blue   { background:var(--blue-dim); border-color:var(--blue); color:#cfe6ff; }
+.box-amber  { background:var(--amber-dim); border-color:var(--amber); color:#ffd7a1; border-width:1.5px; border-style:dashed; }
+.box-coral  { background:var(--coral-dim); border-color:var(--coral); color:#ffd0cf; }
+.arrow-down { width:1px; height:18px; background:#3a3a3a; margin:0 auto; position:relative; }
+.arrow-down::after {
+  content:''; position:absolute; bottom:-5px; left:-4px;
+  border-left:4px solid transparent; border-right:4px solid transparent; border-top:6px solid #3a3a3a;
+}
+.badge { display:inline-block; font-size:10px; padding:2px 8px; border-radius:99px; margin-bottom:5px; font-weight:600; }
+.badge-teal   { background:rgba(29,158,117,.15); color:#7fffd4; border:1px solid var(--teal); }
+.badge-purple { background:rgba(83,74,183,.15);  color:#c9c2ff; border:1px solid var(--purple); }
+.badge-blue   { background:rgba(55,138,221,.15); color:#b9dcff; border:1px solid var(--blue); }
+.badge-amber  { background:rgba(186,117,23,.15); color:#ffd7a1; border:1px solid var(--amber); }
+.badge-gray   { background:rgba(255,255,255,.05);color:#cfcfcf; border:1px solid #444; }
+.badge-coral  { background:rgba(192,80,77,.15);  color:#ffd0cf; border:1px solid var(--coral); }
+.desc-title { font-size:13px; font-weight:600; color:#fff; margin-bottom:4px; }
+.desc-text  { font-size:12px; color:#b5b5b5; line-height:1.7; }
+.desc-text em { font-style:italic; color:#fff; }
+
+/* AUGMENTATION GRID */
+.aug-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; }
+.aug-card {
+  background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:16px;
+  transition:border-color .25s ease, transform .25s ease;
+}
+.aug-card:hover { border-color:var(--teal); transform:translateY(-2px); }
+.aug-name { font-size:13px; font-weight:600; color:var(--white); margin-bottom:5px; }
+.aug-desc { font-size:12px; color:var(--muted); line-height:1.65; }
+
+/* REFERENCES */
+.ref-list { list-style:none; margin-bottom:24px; }
+.ref-list li {
+  font-size:12px; color:#b5b5b5; line-height:1.7;
+  padding:8px 0; border-bottom:1px solid var(--border);
+}
+.ref-list li:last-child { border-bottom:none; }
+.ref-list a { color:var(--blue); text-decoration:none; }
+.ref-list a:hover { text-decoration:underline; }
+.ref-num { color:var(--teal); font-weight:700; margin-right:8px; }
+
+hr { border:none; border-top:1px solid var(--border); margin:32px 0; }
+
+@media (max-width:640px) {
+  .stage { grid-template-columns:1fr; }
+  .stage-line { display:none; }
+  .train-grid { grid-template-columns:1fr; }
+  .metrics { grid-template-columns:repeat(2,1fr); }
+  .dataset-grid { grid-template-columns:1fr 1fr; }
+  .aug-grid { grid-template-columns:1fr; }
+  .hero { padding:24px 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="neural-overlay">
+  <div class="particle p1"></div>
+  <div class="particle p2"></div>
+  <div class="particle p3"></div>
+  <div class="particle p4"></div>
+  <div class="particle p5"></div>
+</div>
+
+<div class="page-wrap">
+
+  <a href="../index.html" class="back-btn">← Back to Portfolio</a>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Deep Learning · Computer Vision · TensorFlow · ONNX · 2025</div>
+    <h1 class="hero-title">Enhanced CNN — <span>CIFAR-10</span><br>Image Classifier</h1>
+    <p class="hero-summary">
+      A custom hybrid CNN architecture combining <strong>Residual Connections</strong>, <strong>Squeeze-and-Excitation Attention</strong>, and <strong>Depthwise Separable Convolutions</strong> — trained on 50,000 images across 10 object categories. Achieves <strong>90.93% test accuracy</strong> and <strong>98.71% Top-3 accuracy</strong>. Deployed via Streamlit and Hugging Face Spaces using ONNX Runtime.
+    </p>
+    <div class="hero-meta">
+      <span>Author: <strong>Hussain</strong></span>
+      <span>Dataset: <strong>CIFAR-10 · 60,000 images</strong></span>
+      <span>Framework: <strong>TensorFlow 2.15 · Keras</strong></span>
+      <span>Deployment: <strong>Streamlit · Hugging Face · ONNX</strong></span>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <p class="section-label">Project overview</p>
+
+  <p class="prose">
+    CIFAR-10 is one of the most studied benchmarks in computer vision — 60,000 colour images at 32×32 pixels across 10 mutually exclusive categories. While the dataset is small by modern standards, building a high-performing classifier from scratch without using a large pre-trained model is a meaningful engineering challenge that requires careful architectural decisions.
+  </p>
+
+  <div class="callout">
+    "Rather than fine-tuning a large pre-trained model, we designed a compact custom architecture from first principles — combining four research techniques to push beyond 90% accuracy while keeping the model lightweight enough to run on CPU."
+  </div>
+
+  <p class="prose">
+    The architecture builds on ideas from <em>ResNet</em> (residual connections for gradient flow), <em>SENet</em> (channel-wise attention), <em>MobileNets</em> (depthwise separable convolutions for efficiency), and <em>NIN</em> (global average pooling as classifier head). The training pipeline uses <em>MixUp augmentation</em>, <em>label smoothing</em>, and <em>cosine annealing with linear warmup</em> — all contributing measurable accuracy gains over a naive baseline.
+  </p>
+
+  <!-- DATASET -->
+  <p class="section-label">Dataset — CIFAR-10</p>
+
+  <p class="prose">
+    CIFAR-10 was collected by Alex Krizhevsky and Geoffrey Hinton at the University of Toronto. Each image is a <strong>32×32 RGB colour photograph</strong> labelled into one of 10 everyday object categories. The dataset is balanced — exactly 6,000 images per class — split into 50,000 training and 10,000 test images.
+  </p>
+
+  <div class="dataset-grid">
+    <div class="ds-card">
+      <div class="ds-num">60,000</div>
+      <div class="ds-lbl">Total labelled<br>colour images</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:100%"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">10</div>
+      <div class="ds-lbl">Object categories<br>(balanced)</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:50%;background:#534AB7"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">32×32</div>
+      <div class="ds-lbl">Image resolution<br>(RGB, 3 channels)</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:30%;background:#378ADD"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">50,000</div>
+      <div class="ds-lbl">Training images<br>5,000 per class</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:83%"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">10,000</div>
+      <div class="ds-lbl">Test images<br>1,000 per class</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:17%;background:#BA7517"></div></div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-num">0.0–1.0</div>
+      <div class="ds-lbl">Pixel value range<br>after normalisation</div>
+      <div class="ds-bar"><div class="ds-bar-fill" style="width:100%;background:#7a7f8e"></div></div>
+    </div>
+  </div>
+
+  <!-- CLASS RESULTS -->
+  <p class="section-label">Class-wise performance — final model</p>
+
+  <p class="prose">
+    Results on the <strong>10,000-image test set</strong> after 100 training epochs. Best model restored from epoch 86 via ModelCheckpoint.
+  </p>
+
+  <table class="class-table">
+    <thead>
+      <tr>
+        <th>Class</th>
+        <th>Test samples</th>
+        <th>Precision</th>
+        <th>F1</th>
+        <th style="min-width:160px;">Recall</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Automobile</td><td>1,000</td><td>0.96</td><td>0.95</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:94%;background:#1D9E75;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#7fffd4">94%</span></div></td>
+      </tr>
+      <tr>
+        <td>Ship</td><td>1,000</td><td>0.94</td><td>0.95</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:96%;background:#378ADD;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#cfe6ff">96%</span></div></td>
+      </tr>
+      <tr>
+        <td>Truck</td><td>1,000</td><td>0.93</td><td>0.94</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:95%;background:#534AB7;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#d6d0ff">95%</span></div></td>
+      </tr>
+      <tr>
+        <td>Frog</td><td>1,000</td><td>0.91</td><td>0.93</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:95%;background:#1D9E75;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#7fffd4">95%</span></div></td>
+      </tr>
+      <tr>
+        <td>Horse</td><td>1,000</td><td>0.92</td><td>0.92</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:93%;background:#BA7517;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#ffd7a1">93%</span></div></td>
+      </tr>
+      <tr>
+        <td>Airplane</td><td>1,000</td><td>0.90</td><td>0.91</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:92%;background:#378ADD;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#cfe6ff">92%</span></div></td>
+      </tr>
+      <tr>
+        <td>Deer</td><td>1,000</td><td>0.90</td><td>0.90</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:91%;background:#7a7f8e;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#cfcfcf">91%</span></div></td>
+      </tr>
+      <tr>
+        <td>Bird</td><td>1,000</td><td>0.89</td><td>0.88</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:88%;background:#534AB7;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#d6d0ff">88%</span></div></td>
+      </tr>
+      <tr>
+        <td>Dog</td><td>1,000</td><td>0.86</td><td>0.87</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:87%;background:#BA7517;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#ffd7a1">87%</span></div></td>
+      </tr>
+      <tr>
+        <td>Cat</td><td>1,000</td><td>0.89</td><td>0.82</td>
+        <td><div class="recall-bar-wrap"><div class="recall-bar-bg"><div class="recall-bar-fill" style="width:77%;background:#C0504D;height:100%;border-radius:99px"></div></div><span class="recall-val" style="color:#ffd0cf">77%</span></div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-amber">
+    Cat is the hardest class — only 77% recall. Cats are visually ambiguous at 32×32 resolution and frequently confused with dogs and deer. This is consistent across all published CIFAR-10 benchmarks, including ResNet and EfficientNet papers, and reflects an inherent limitation of the low-resolution dataset rather than a model deficiency.
+  </div>
+
+  <!-- FINAL METRICS -->
+  <p class="section-label">Final model performance</p>
+  <div class="metrics">
+    <div class="metric"><div class="metric-num">90.93%</div><div class="metric-lbl">Test accuracy</div></div>
+    <div class="metric"><div class="metric-num">98.71%</div><div class="metric-lbl">Top-3 accuracy</div></div>
+    <div class="metric"><div class="metric-num">0.91</div><div class="metric-lbl">Macro F1</div></div>
+    <div class="metric"><div class="metric-num">86</div><div class="metric-lbl">Best epoch</div></div>
+  </div>
+
+  <hr>
+
+  <!-- AUGMENTATION -->
+  <p class="section-label">Data augmentation pipeline</p>
+
+  <p class="prose">
+    Two complementary augmentation strategies are applied at training time. Standard geometric augmentations run per-image inside the tf.data pipeline. MixUp is applied at the batch level after geometric augmentation.
+  </p>
+
+  <div class="aug-grid">
+    <div class="aug-card">
+      <div class="aug-name">Standard Geometric Augmentation</div>
+      <div class="aug-desc">Random horizontal flip, pad-and-crop (pad 4px per side with reflection, then random crop back to 32×32), random brightness jitter (±0.1), random saturation jitter (0.8–1.2). Applied per-image in parallel using tf.data AUTOTUNE. Teaches spatial invariance and prevents positional overfitting.</div>
+    </div>
+    <div class="aug-card">
+      <div class="aug-name">MixUp Augmentation (Zhang et al., ICLR 2018)</div>
+      <div class="aug-desc">Applied at batch level. Pairs of images and their one-hot labels are linearly interpolated: x̃ = λ·xᵢ + (1−λ)·xⱼ and ỹ = λ·yᵢ + (1−λ)·yⱼ where λ ~ Beta(0.4, 0.4). Forces the model to learn smooth decision boundaries and acts as implicit label smoothing. Consistently improves generalisation by 1–2% on CIFAR-10.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ARCHITECTURE -->
+  <div class="arch-section">
+    <p class="section-label">Architecture pipeline</p>
+
+    <!-- STAGE 0 — INPUT -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-gray">Input image<div class="sub">32×32×3 · float32 · normalised [0,1]</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-gray">Stage 0 — input</span>
+        <div class="desc-title">Raw CIFAR-10 image tensor</div>
+        <div class="desc-text">Each image is a 32×32 RGB tensor with 3 channels — 3,072 scalar values per image. Pixel values are normalised from [0,255] integers to [0.0,1.0] float32 by dividing by 255. During training, MixUp may produce interpolated images with non-integer effective labels. The batch tensor entering the network has shape (128, 32, 32, 3).</div>
+      </div>
+    </div>
+
+    <!-- STAGE 1 — STEM -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-teal">Stem Conv2D(64)<div class="sub">3×3 · padding=same · BN · ReLU · 32×32×64</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-teal">Stage 1 — stem</span>
+        <div class="desc-title">Initial feature extraction</div>
+        <div class="desc-text">A single 3×3 convolution with 64 filters transforms the 3-channel image into 64 feature maps. <em>Padding=same</em> preserves spatial dimensions at 32×32. No pooling yet — spatial detail is kept intact for Block 1. Batch Normalisation stabilises activations and ReLU introduces non-linearity. Parameters: 3×3×3×64 = 1,728 weights (no bias, BN provides shift). This layer is analogous to the stem in ResNet and EfficientNet.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 2 — BLOCK 1 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-blue">Block 1 — Residual(64)<div class="sub">Conv(64)+BN+ReLU → Conv(64)+BN → SE → Add → ReLU · Identity skip</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-blue">Stage 2 — residual block 1</span>
+        <div class="desc-title">Identity shortcut — no projection needed</div>
+        <div class="desc-text">The first residual block uses two standard 3×3 convolutions with 64 filters each. Because the input (32×32×64 from the stem) and output (32×32×64) have identical shapes, the skip connection passes the input directly to the Add layer — this is <em>He et al.'s identity shortcut (option A)</em>. The SE block recalibrates channel weights between the second conv and the Add. After the Add, ReLU is applied. MaxPool(2×2) halves spatial dims to 16×16, then Dropout(0.25) provides regularisation.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 3 — BLOCK 2 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-purple">Block 2 — Residual(128)<div class="sub">Conv(128)+BN+ReLU → DepthwiseSep(128)+BN → SE → Add → ReLU · Projection skip</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-purple">Stage 3 — residual block 2</span>
+        <div class="desc-title">Projection shortcut — 64→128 channel mismatch</div>
+        <div class="desc-text">The second block doubles channels to 128. The main branch uses a standard 3×3 conv followed by a <em>Depthwise Separable Convolution</em> — a 3×3 depthwise conv (one filter per channel, spatial mixing only) followed by a 1×1 pointwise conv (channel mixing). This reduces parameters by ~8-9× versus a standard conv. Because the skip path carries 64 channels but the main branch outputs 128, a <em>projection shortcut</em> (1×1 Conv2D(128) + BN, no activation) is applied to match dimensions before the Add. Input: 16×16×64. Output after MaxPool: 8×8×128.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 4 — BLOCK 3 -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-coral">Block 3 — Residual(256)<div class="sub">Conv(256)+BN+ReLU → DepthwiseSep(256)+BN → SE → Add → ReLU · Projection skip</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-coral">Stage 4 — residual block 3</span>
+        <div class="desc-title">Projection shortcut — 128→256 channel mismatch</div>
+        <div class="desc-text">The third block doubles channels again to 256. Same pattern as Block 2: standard 3×3 conv then depthwise separable conv, SE attention, and a 1×1 projection shortcut on the skip path to match 128→256 channels. The SE block here operates on 256 channels with a reduction ratio of 16 (256/16 = 16 bottleneck neurons). After the Add and ReLU, MaxPool(2×2) reduces spatial dims to 4×4, and Dropout(0.25) regularises. Output: 4×4×256.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 5 — SE BLOCK (detail) -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-amber">SE Attention Block<div class="sub">GlobalAvgPool → FC(C/16, ReLU) → FC(C, Sigmoid) → Reshape → Multiply</div></div>
+        <div class="arrow-down"></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-amber">Stage 5 — SE block (key innovation)</span>
+        <div class="desc-title">Channel-wise attention mechanism</div>
+        <div class="desc-text">The SE block (Hu et al., CVPR 2018) is embedded in every residual block. It asks: <em>"which of the C feature channels matter most for this image?"</em> Step 1 — Squeeze: GlobalAveragePooling2D collapses (H,W,C) → (1,1,C), producing a channel descriptor. Step 2 — Excitation: two Dense layers (C→C/16→C) with ReLU and Sigmoid learn per-channel attention weights in [0,1]. Step 3 — Scale: the weights are broadcast and multiplied channel-wise onto the feature map. Channels carrying useful information are amplified; noise channels are suppressed. Adds only ~0.2% parameter overhead.</div>
+      </div>
+    </div>
+
+    <!-- STAGE 6 — GAP HEAD -->
+    <div class="stage">
+      <div class="stage-diagram">
+        <div class="box box-teal">Global Average Pooling<div class="sub">4×4×256 → 256-dim vector · Dropout(0.4) · Dense(10, Softmax)</div></div>
+      </div>
+      <div class="stage-line"></div>
+      <div class="stage-desc">
+        <span class="badge badge-teal">Stage 6 — classifier head</span>
+        <div class="desc-title">Global Average Pooling replaces Flatten + Dense(512)</div>
+        <div class="desc-text">Instead of Flatten + Dense(512) (which would add ~4M parameters), Global Average Pooling averages each of the 256 feature maps spatially — producing a 256-dimensional vector directly from the 4×4×256 tensor. This is 4×4=16 times fewer values than flattening, with no learnable parameters. Dropout(0.4) then regularises the vector, and a single Dense(10) with Softmax produces the final class probabilities. Label smoothing in the loss function prevents overconfident predictions during training.</div>
+      </div>
+    </div>
+  </div><!-- /arch-section -->
+
+  <hr>
+
+  <!-- TRAINING CONFIG -->
+  <p class="section-label">Training configuration</p>
+  <div class="train-grid">
+    <div class="train-card">
+      <div class="train-card-title">Optimiser and Loss</div>
+      <div class="train-card-text">SGD with Nesterov momentum (0.9). Base learning rate = 0.1. Loss: Categorical Cross-Entropy with label smoothing = 0.1. Nesterov momentum applies the gradient at a lookahead position, giving slightly faster convergence than standard SGD. Label smoothing prevents the model from becoming over-confident and improves calibration.</div>
+    </div>
+    <div class="train-card">
+      <div class="train-card-title">Learning Rate Schedule</div>
+      <div class="train-card-text">Linear warmup for the first 5 epochs: LR ramps from 0 → 0.1 linearly. Epochs 5–100: cosine annealing from 0.1 → 1e-5. Warmup stabilises BatchNorm statistics during the early chaotic phase. Cosine annealing provides a smooth, monotonically decreasing LR that avoids sharp drops. ReduceLROnPlateau provides a backup reduction (factor 0.5, patience 8).</div>
+    </div>
+    <div class="train-card">
+      <div class="train-card-title">Callbacks</div>
+      <div class="train-card-text">ModelCheckpoint saves best val_accuracy weights to Google Drive automatically. EarlyStopping with patience = 15 restores best weights at the end. CSVLogger records every epoch's metrics to training_log.csv. Best checkpoint reached at epoch 86 with val_accuracy = 90.93%.</div>
+    </div>
+    <div class="train-card">
+      <div class="train-card-title">Hardware and Framework</div>
+      <div class="train-card-text">Trained on Google Colab T4 GPU (~40 minutes for 100 epochs). Framework: TensorFlow 2.15 / Keras. Batch size: 128. Deployed via ONNX Runtime for CPU inference on Streamlit Cloud and Hugging Face Spaces — no TensorFlow dependency at inference time.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- TIMELINE -->
+  <p class="section-label">Project timeline</p>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-week">Phase 1 — Architecture Design</div>
+      <div class="tl-milestone">Literature review and architecture planning</div>
+      <div class="tl-detail">Reviewed ResNet (He et al., 2016), SENet (Hu et al., 2018), MobileNets (Howard et al., 2017), and MixUp (Zhang et al., 2018). Designed the hybrid architecture combining all four techniques. Identified the projection shortcut requirement mathematically before implementation.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-week">Phase 2 — Implementation</div>
+      <div class="tl-milestone">TensorFlow/Keras implementation with full training pipeline</div>
+      <div class="tl-detail">Implemented SE block, residual block with automatic projection shortcut detection (checks in_channels != filters), depthwise separable conv, GAP head. Built MixUp augmentation and cosine annealing LR schedule from scratch. Configured Drive-backed checkpointing.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-week">Phase 3 — Training</div>
+      <div class="tl-milestone">100-epoch training run on Colab T4 GPU</div>
+      <div class="tl-detail">Trained for 100 epochs. Best model saved at epoch 86 (val_accuracy = 90.93%). Training and validation curves confirmed healthy learning — no overfitting observed (train/val gap ~3.4%). Top-3 accuracy reached 98.71%.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-week">Phase 4 — Deployment</div>
+      <div class="tl-milestone">ONNX conversion and multi-platform deployment</div>
+      <div class="tl-detail">Converted trained model to ONNX format using tf2onnx. Deployed Streamlit app to Streamlit Cloud with Drive-hosted model weights. Deployed Gradio app to Hugging Face Spaces using ONNX Runtime — eliminating TensorFlow dependency at inference time entirely.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- REFERENCES -->
+  <p class="section-label">References</p>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> He, K., Zhang, X., Ren, S., & Sun, J. (2016). Deep residual learning for image recognition. <em>CVPR 2016</em>. <a href="https://arxiv.org/abs/1512.03385" target="_blank">arXiv:1512.03385</a></li>
+    <li><span class="ref-num">[2]</span> Hu, J., Shen, L., & Sun, G. (2018). Squeeze-and-excitation networks. <em>CVPR 2018</em>. <a href="https://arxiv.org/abs/1709.01507" target="_blank">arXiv:1709.01507</a></li>
+    <li><span class="ref-num">[3]</span> Howard, A. G. et al. (2017). MobileNets: Efficient convolutional neural networks for mobile vision applications. <a href="https://arxiv.org/abs/1704.04861" target="_blank">arXiv:1704.04861</a></li>
+    <li><span class="ref-num">[4]</span> Zhang, H., Cisse, M., Dauphin, Y. N., & Lopez-Paz, D. (2018). MixUp: Beyond empirical risk minimization. <em>ICLR 2018</em>. <a href="https://arxiv.org/abs/1710.09412" target="_blank">arXiv:1710.09412</a></li>
+    <li><span class="ref-num">[5]</span> Ioffe, S., & Szegedy, C. (2015). Batch normalization: Accelerating deep network training by reducing internal covariate shift. <em>ICML 2015</em>. <a href="https://arxiv.org/abs/1502.03167" target="_blank">arXiv:1502.03167</a></li>
+    <li><span class="ref-num">[6]</span> Simonyan, K., & Zisserman, A. (2014). Very deep convolutional networks for large-scale image recognition. <em>ICLR 2015</em>. <a href="https://arxiv.org/abs/1409.1556" target="_blank">arXiv:1409.1556</a></li>
+    <li><span class="ref-num">[7]</span> Krizhevsky, A. (2009). Learning multiple layers of features from tiny images. <em>Technical Report, University of Toronto</em>. (CIFAR-10 dataset)</li>
+  </ul>
+
+</div><!-- /page-wrap -->
+</body>
+</html>
